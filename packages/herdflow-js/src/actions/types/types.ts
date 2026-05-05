@@ -1,5 +1,3 @@
-import type { MARKER_ACTION_CLIENT } from '../../core/internal/brandSymbols.js';
-
 //-------------------------------------------------------
 //-- map
 //-------------------------------------------------------
@@ -32,7 +30,6 @@ export type ActionHandler<
 export type Invoker<T_Map extends ActionMap = ActionMap> = { [K in keyof T_Map]: T_Map[K] };
 
 export interface ActionClient<T_Map extends ActionMap = ActionMap> {
-  readonly [MARKER_ACTION_CLIENT]: true;
   readonly invoke: Invoker<T_Map>;
 }
 

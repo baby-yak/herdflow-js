@@ -4,12 +4,12 @@ import { ReactiveState_base } from './internal/reactiveState_base.js';
 import { StateClient_imp } from './internal/stateClient_imp.js';
 import { StateSelector_imp } from './internal/stateSelector_imp.js';
 import { isPlainObject } from './internal/utils.js';
+import { type StateClient } from './types/stateClient.js';
 import {
   type StateConstructionParams,
   type StateListener,
   type StateSelectFn,
 } from './types/types.js';
-import { type StateClient } from './types/stateClient.js';
 
 //-------------------------------------------------------
 // -- enables immer Map/Set support globally — see README

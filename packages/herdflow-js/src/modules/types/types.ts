@@ -1,11 +1,6 @@
-import type { MARKER_MODULE, MARKER_MODULE_CLIENT } from '../../core/internal/brandSymbols.js';
+import type { MARKER_MODULE } from '../../core/internal/brandSymbols.js';
 import type { EventClient } from '../../events/index.js';
-import type {
-  RemoteService,
-  RemoteServiceClient,
-  ServiceClient,
-  ServiceDescriptor,
-} from '../../services/index.js';
+import type { ServiceClient } from '../../services/index.js';
 import type { Service } from '../../services/service.js';
 import type { StateClient } from '../../state/index.js';
 
@@ -64,9 +59,6 @@ export interface Module<
  * Obtained via `module.client`.
  */
 export interface ModuleClient<T_Module extends ModuleDescriptor = ModuleDescriptor> {
-  //instance marker
-  readonly [MARKER_MODULE_CLIENT]: true;
-
   /** Reactive lifecycle state — subscribe to react to `isStarted` changes. */
   readonly state: StateClient<ModuleState>;
   /** Lifecycle events — fired after `start()` and `stop()` complete. */
@@ -103,7 +95,7 @@ export type ModuleEvents = {
  * };
  */
 export type ModuleDescriptor = {
-  [key: string]: Service<any> | RemoteService<any>;
+  [key: string]: Service<any>;
 };
 
 /** The typed `ServiceClient` map exposed on `module.services`.\
@@ -129,26 +121,11 @@ export type ModuleServiceClients<T_Module extends ModuleDescriptor | Module<any>
  * - `Service<D>` => `ServiceClient<D>`
  * - `RemoteService<D>` => `RemoteServiceClient<D>`
  * */
-export type ServiceToClient<S extends Service<any> | RemoteService<any>> =
-  //service
-  S extends Service<infer D>
-    ? ServiceClient<D>
-    : //remote service
-      S extends RemoteService<infer D>
-      ? RemoteServiceClient<D>
-      : //default
-        never;
+export type ServiceToClient<S extends Service<any>> =
+  S extends Service<infer D> ? ServiceClient<D> : never;
 
 /** Extracts the `ServiceDescriptor` from a `Service`. */
-export type ExtractDescriptor<S extends Service<any> | RemoteService<any>> =
-  //service
-  S extends Service<infer D>
-    ? D
-    : //remote service
-      S extends RemoteService<infer D>
-      ? D
-      : //default
-        ServiceDescriptor;
+export type ExtractDescriptor<S extends Service<any>> = S extends Service<infer D> ? D : never;
 
 //-------------------------------------------------------
 //-------------------------------------------------------

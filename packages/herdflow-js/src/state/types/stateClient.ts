@@ -1,12 +1,8 @@
-import type { MARKER_STATE_CLIENT } from '../../core/internal/brandSymbols.js';
 import type { UnsubscribeFn } from '../../core/types.js';
-import type { StateSelectFn, StateListener } from './types.js';
+import type { StateListener, StateSelectFn } from './types.js';
 
 /** Read-only view of a reactive state container. */
 export interface StateClient<S> {
-  //instance marker
-  readonly [MARKER_STATE_CLIENT]: true;
-
   /** Returns the current state (deeply readonly). */
   get<U = S>(select?: StateSelectFn<S, U>): U;
 

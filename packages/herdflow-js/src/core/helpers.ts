@@ -17,15 +17,12 @@ import {
   MARKER_MODULE,
   MARKER_MODULE_CLIENT,
   MARKER_REACTIVE_STATE,
-  MARKER_REMOTE_SERVICE,
-  MARKER_REMOTE_SERVICE_CLIENT,
-  MARKER_REMOTE_STATE,
-  MARKER_REMOTE_STATE_CLIENT,
   MARKER_SERVICE,
   MARKER_SERVICE_CLIENT,
   MARKER_STATE_CLIENT,
 } from './internal/brandSymbols.js';
 
+// actions
 export function isActionExecuter(obj: unknown): obj is ActionExecuter<any> {
   return targetIs(obj, MARKER_ACTION_EXECUTER);
 }
@@ -33,6 +30,7 @@ export function isActionClient(obj: unknown): obj is ActionClient<any> {
   return targetIs(obj, MARKER_ACTION_CLIENT);
 }
 
+// events
 export function isEventEmitter(obj: unknown): obj is EventEmitter<any> {
   return targetIs(obj, MARKER_EVENT_EMITTER);
 }
@@ -40,6 +38,7 @@ export function isEventClient(obj: unknown): obj is EventClient<any> {
   return targetIs(obj, MARKER_EVENT_CLIENT);
 }
 
+// state
 export function isStateClient(obj: unknown): obj is StateClient<any> {
   return targetIs(obj, MARKER_STATE_CLIENT);
 }
@@ -47,14 +46,7 @@ export function isReactiveState(obj: unknown): obj is ReactiveState<any> {
   return targetIs(obj, MARKER_REACTIVE_STATE);
 }
 
-export function isRemoteStateClient(obj: unknown): obj is StateClient<any> {
-  return targetIs(obj, MARKER_REMOTE_STATE_CLIENT);
-}
-
-export function isRemoteState(obj: unknown): obj is ReactiveState<any> {
-  return targetIs(obj, MARKER_REMOTE_STATE);
-}
-
+// services
 export function isServiceClient(obj: unknown): obj is ServiceClient<any> {
   return targetIs(obj, MARKER_SERVICE_CLIENT);
 }
@@ -62,13 +54,7 @@ export function isService<T extends ServiceDescriptor>(obj: unknown): obj is Ser
   return targetIs(obj, MARKER_SERVICE);
 }
 
-export function isRemoteServiceClient(obj: unknown): obj is ServiceClient<any> {
-  return targetIs(obj, MARKER_REMOTE_SERVICE_CLIENT);
-}
-export function isRemoteService<T extends ServiceDescriptor>(obj: unknown): obj is Service<T> {
-  return targetIs(obj, MARKER_REMOTE_SERVICE);
-}
-
+// module
 export function isModuleClient(obj: unknown): obj is ModuleClient<any> {
   return targetIs(obj, MARKER_MODULE_CLIENT);
 }
