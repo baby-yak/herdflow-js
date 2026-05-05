@@ -1,5 +1,4 @@
 import { EventClient_imp } from './internal/eventClient_imp.js';
-import { EventEmitter_base } from './internal/eventEmitter_base.js';
 import {
   type EventNames_Pure,
   type EventNames_Reserved,
@@ -44,9 +43,10 @@ type Listener<T_EventMap extends EventMap = EventMap> = {
  * emitter.emit('userJoined', 'alice');
  * ```
  */
-export class EventEmitter<
-  T_EventMap extends EventMap = EventMap,
-> extends EventEmitter_base<T_EventMap> {
+export class EventEmitter<T_EventMap extends EventMap = EventMap>
+  extends EventClient_imp<T_EventMap>
+  implements EventClient<T_EventMap>
+{
   //instance marker
 
   private static _GLOBAL_MAX_LISTENERS = 10;

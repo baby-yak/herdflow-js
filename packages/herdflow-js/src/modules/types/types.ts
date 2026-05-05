@@ -1,4 +1,3 @@
-import type { MARKER_MODULE } from '../../core/internal/brandSymbols.js';
 import type { EventClient } from '../../events/index.js';
 import type { ServiceClient } from '../../services/index.js';
 import type { Service } from '../../services/service.js';
@@ -35,9 +34,6 @@ import type { StateClient } from '../../state/index.js';
 export interface Module<
   T_Module extends ModuleDescriptor = ModuleDescriptor,
 > extends ModuleClient<T_Module> {
-  //instance marker
-  readonly [MARKER_MODULE]: true;
-
   /** Returns a read-only `ModuleClient` safe to share with consumers. Does not expose `start`/`stop`. */
   readonly client: ModuleClient<T_Module>;
   /** Run the full startup sequence: `init` → `start` → `afterStart`. */

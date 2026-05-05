@@ -2,7 +2,7 @@ import { ActionExecuter, type Invoker } from '../actions/index.js';
 import { EventEmitter } from '../events/index.js';
 import type { ModuleClient, ModuleDescriptor } from '../modules/index.js';
 import { ReactiveState } from '../state/reactiveState.js';
-import { Service_base } from './internal/service_base.js';
+import { MARKER_SERVICE, MARKER_SERVICE_CLIENT } from './internal/markers.js';
 import { ServiceClient_imp } from './internal/serviceClient_imp.js';
 import { _SERVICE_LIFECYCLE_ } from './internal/types.js';
 import type { ServiceClient } from './types/serviceClient.js';
@@ -39,7 +39,10 @@ import type {
  */
 export abstract class Service<
   Descriptor extends ServiceDescriptor = ServiceDescriptor,
-> extends Service_base<Descriptor> {
+> implements ServiceClient<Descriptor> {
+  [MARKER_SERVICE_CLIENT] = true;
+  [MARKER_SERVICE] = true;
+
   private _module: ModuleClient | undefined;
 
   readonly name: string;
@@ -77,8 +80,6 @@ export abstract class Service<
     initialState: DescState<Descriptor>,
     params?: ServiceConstructionParams,
   ) {
-    super();
-
     this.name = name;
     this.state = new ReactiveState<DescState<Descriptor>>(initialState, params?.state);
     this.events = new EventEmitter<DescEvents<Descriptor>>(params?.events);

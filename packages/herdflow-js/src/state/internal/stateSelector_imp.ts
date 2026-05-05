@@ -1,15 +1,12 @@
 import type { UnsubscribeFn } from '../../core/types.js';
-import type { StateListener, StateSelectFn } from '../types/types.js';
 import type { StateClient } from '../types/stateClient.js';
-import { StateClient_base } from './stateClient_base.js';
+import type { StateListener, StateSelectFn } from '../types/types.js';
 
-export class StateSelector_imp<S, U> extends StateClient_base<U> {
+export class StateSelector_imp<S, U> implements StateClient<U> {
   private source: StateClient<S>;
   private fn: StateSelectFn<S, U>;
 
   constructor(source: StateClient<S>, fn: StateSelectFn<S, U>) {
-    super();
-
     this.source = source;
     this.fn = fn;
   }

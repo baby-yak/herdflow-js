@@ -1,6 +1,5 @@
 import { enableMapSet, produce, type Draft } from 'immer';
 import type { UnsubscribeFn } from '../core/types.js';
-import { ReactiveState_base } from './internal/reactiveState_base.js';
 import { StateClient_imp } from './internal/stateClient_imp.js';
 import { StateSelector_imp } from './internal/stateSelector_imp.js';
 import { isPlainObject } from './internal/utils.js';
@@ -41,7 +40,7 @@ const DEFAULT_OPTIONS: Required<StateConstructionParams> = {
  * state.update(draft => { draft.count++; });
  * ```
  */
-export class ReactiveState<S> extends ReactiveState_base<S> {
+export class ReactiveState<S> implements StateClient<S> {
   //instance marker
 
   private _initial: S;
@@ -56,8 +55,6 @@ export class ReactiveState<S> extends ReactiveState_base<S> {
   readonly client: StateClient<S>;
 
   constructor(initial: S, options?: StateConstructionParams) {
-    super();
-
     this._initial = initial;
     this._state = initial;
     this._listeners = [];

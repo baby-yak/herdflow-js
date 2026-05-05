@@ -1,9 +1,9 @@
 import {
-  type ServiceClient,
   type ActionClient,
   type ActionMap,
   type EventClient,
   type EventMap,
+  type ServiceClient,
   type StateClient,
   isServiceClient,
 } from '@baby-yak/herdflow-js';

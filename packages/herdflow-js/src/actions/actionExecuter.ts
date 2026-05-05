@@ -1,4 +1,3 @@
-import { ActionExecuter_base } from './internal/actionExecuter_base.js';
 import { ActionsClient_imp } from './internal/actionsClient_imp.js';
 import { ActionExecutionMapping } from './internal/types.js';
 import { createInvoker } from './internal/utils.js';
@@ -11,9 +10,7 @@ import type {
   Invoker,
 } from './types/types.js';
 
-export class ActionExecuter<
-  T_Map extends ActionMap = ActionMap,
-> extends ActionExecuter_base<T_Map> {
+export class ActionExecuter<T_Map extends ActionMap = ActionMap> implements ActionClient<T_Map> {
   readonly invoke: Invoker<T_Map>;
 
   private _exec = new ActionExecutionMapping<T_Map>();
@@ -21,8 +18,6 @@ export class ActionExecuter<
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   constructor(_params?: ActionsConstructionParams) {
-    super();
-
     //create the invoker
     this.invoke = createInvoker(this._exec);
     this.client = new ActionsClient_imp(this.invoke);
