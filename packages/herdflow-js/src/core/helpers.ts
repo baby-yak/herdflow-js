@@ -7,7 +7,7 @@ import type { Service } from '../services/service.js';
 import type { ServiceClient } from '../services/types/serviceClient.js';
 import type { ServiceDescriptor } from '../services/types/types.js';
 import type { ReactiveState } from '../state/reactiveState.js';
-import type { StateClient } from '../state/types/types.js';
+import type { StateClient } from '../state/types/stateClient.js';
 import { targetIs } from '../utils/utils.js';
 import {
   MARKER_ACTION_CLIENT,
@@ -17,6 +17,10 @@ import {
   MARKER_MODULE,
   MARKER_MODULE_CLIENT,
   MARKER_REACTIVE_STATE,
+  MARKER_REMOTE_SERVICE,
+  MARKER_REMOTE_SERVICE_CLIENT,
+  MARKER_REMOTE_STATE,
+  MARKER_REMOTE_STATE_CLIENT,
   MARKER_SERVICE,
   MARKER_SERVICE_CLIENT,
   MARKER_STATE_CLIENT,
@@ -43,11 +47,26 @@ export function isReactiveState(obj: unknown): obj is ReactiveState<any> {
   return targetIs(obj, MARKER_REACTIVE_STATE);
 }
 
+export function isRemoteStateClient(obj: unknown): obj is StateClient<any> {
+  return targetIs(obj, MARKER_REMOTE_STATE_CLIENT);
+}
+
+export function isRemoteState(obj: unknown): obj is ReactiveState<any> {
+  return targetIs(obj, MARKER_REMOTE_STATE);
+}
+
 export function isServiceClient(obj: unknown): obj is ServiceClient<any> {
   return targetIs(obj, MARKER_SERVICE_CLIENT);
 }
 export function isService<T extends ServiceDescriptor>(obj: unknown): obj is Service<T> {
   return targetIs(obj, MARKER_SERVICE);
+}
+
+export function isRemoteServiceClient(obj: unknown): obj is ServiceClient<any> {
+  return targetIs(obj, MARKER_REMOTE_SERVICE_CLIENT);
+}
+export function isRemoteService<T extends ServiceDescriptor>(obj: unknown): obj is Service<T> {
+  return targetIs(obj, MARKER_REMOTE_SERVICE);
 }
 
 export function isModuleClient(obj: unknown): obj is ModuleClient<any> {
