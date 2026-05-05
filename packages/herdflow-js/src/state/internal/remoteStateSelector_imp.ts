@@ -1,20 +1,20 @@
 import type { UnsubscribeFn } from '../../core/types.js';
+import type { RemoteStateClient } from '../types/remoteStateClient.js';
 import type { StateListener, StateSelectFn } from '../types/types.js';
-import type { StateClient } from '../types/stateClient.js';
-import { StateClient_base } from './stateClient_base.js';
+import { RemoteStateClient_base } from './remoteStateClient_base.js';
 
-export class StateSelector_imp<S, U> extends StateClient_base<U> {
-  private source: StateClient<S>;
+export class RemoteStateSelector_imp<S, U> extends RemoteStateClient_base<U> {
+  private source: RemoteStateClient<S>;
   private fn: StateSelectFn<S, U>;
 
-  constructor(source: StateClient<S>, fn: StateSelectFn<S, U>) {
+  constructor(source: RemoteStateClient<S>, fn: StateSelectFn<S, U>) {
     super();
 
     this.source = source;
     this.fn = fn;
   }
 
-  get<W = U>(select?: StateSelectFn<U, W>): W {
+  async get<W = U>(select?: StateSelectFn<U, W>): Promise<W> {
     if (select) {
       // chain stored and provided select functions S=>U=>W
       const chain = (state: S) => select(this.fn(state));
@@ -23,17 +23,6 @@ export class StateSelector_imp<S, U> extends StateClient_base<U> {
       // cast
       const noChain = (state: S) => this.fn(state) as unknown as W;
       return this.source.get(noChain);
-    }
-  }
-  getInitialState<W = U>(select?: StateSelectFn<U, W>): W {
-    if (select) {
-      // chain stored and provided select functions S=>U=>W
-      const chain = (state: S) => select(this.fn(state));
-      return this.source.getInitialState(chain);
-    } else {
-      // cast
-      const noChain = (state: S) => this.fn(state) as unknown as W;
-      return this.source.getInitialState(noChain);
     }
   }
   subscribe(listener: StateListener<U>): UnsubscribeFn {
@@ -53,11 +42,11 @@ export class StateSelector_imp<S, U> extends StateClient_base<U> {
       prev = selected;
     });
   }
-  select<W>(selector: StateSelectFn<U, W>): StateClient<W> {
+  select<W>(selector: StateSelectFn<U, W>): RemoteStateClient<W> {
     const fn: StateSelectFn<S, W> = (state) => {
       const sub = this.fn(state);
       return selector(sub);
     };
-    return new StateSelector_imp(this.source, fn);
+    return new RemoteStateSelector_imp(this.source, fn);
   }
 }

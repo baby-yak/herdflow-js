@@ -1,4 +1,6 @@
+import { ComposableRemoteService_imp } from './internal/composableRemoteService_imp.js';
 import { ComposableService_imp } from './internal/composableService_imp.js';
+import type { ComposableRemoteService } from './types/composableRemoteService.js';
 import type { ComposableService } from './types/composableService.js';
 import type { DescState, ServiceConstructionParams, ServiceDescriptor } from './types/types.js';
 
@@ -27,4 +29,11 @@ export function createService<Descriptor extends ServiceDescriptor = ServiceDesc
   params?: ServiceConstructionParams,
 ): ComposableService<Descriptor> {
   return new ComposableService_imp<Descriptor>(name, initialState, params);
+}
+
+export function createRemoteService<Descriptor extends ServiceDescriptor = ServiceDescriptor>(
+  name: string,
+  params?: ServiceConstructionParams,
+): ComposableRemoteService<Descriptor> {
+  return new ComposableRemoteService_imp<Descriptor>(name, params);
 }

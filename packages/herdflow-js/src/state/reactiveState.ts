@@ -5,11 +5,11 @@ import { StateClient_imp } from './internal/stateClient_imp.js';
 import { StateSelector_imp } from './internal/stateSelector_imp.js';
 import { isPlainObject } from './internal/utils.js';
 import {
-  type StateClient,
   type StateConstructionParams,
   type StateListener,
   type StateSelectFn,
 } from './types/types.js';
+import { type StateClient } from './types/stateClient.js';
 
 //-------------------------------------------------------
 // -- enables immer Map/Set support globally — see README
@@ -69,12 +69,20 @@ export class ReactiveState<S> extends ReactiveState_base<S> {
     this.client = new StateClient_imp(this);
   }
 
-  get(): S {
-    return this._state;
+  get<U = S>(select?: StateSelectFn<S, U>): U {
+    if (select) {
+      return select(this._state);
+    } else {
+      return this._state as unknown as U;
+    }
   }
 
-  getInitialState(): S {
-    return this._initial;
+  getInitialState<U = S>(select?: StateSelectFn<S, U>): U {
+    if (select) {
+      return select(this._initial);
+    } else {
+      return this._initial as unknown as U;
+    }
   }
 
   /** Replaces the state. No-ops if the new value is the same reference (`Object.is`). */

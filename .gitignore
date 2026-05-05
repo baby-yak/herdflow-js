@@ -8,3 +8,4 @@ CLAUDE.local.md
 secrets/
 __local_tests/
 .turbo/
+tmp/

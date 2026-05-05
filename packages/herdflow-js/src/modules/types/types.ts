@@ -1,6 +1,11 @@
 import type { MARKER_MODULE, MARKER_MODULE_CLIENT } from '../../core/internal/brandSymbols.js';
 import type { EventClient } from '../../events/index.js';
-import type { ServiceClient, ServiceDescriptor } from '../../services/index.js';
+import type {
+  RemoteService,
+  RemoteServiceClient,
+  ServiceClient,
+  ServiceDescriptor,
+} from '../../services/index.js';
 import type { Service } from '../../services/service.js';
 import type { StateClient } from '../../state/index.js';
 
@@ -98,7 +103,7 @@ export type ModuleEvents = {
  * };
  */
 export type ModuleDescriptor = {
-  [key: string]: Service<any>;
+  [key: string]: Service<any> | RemoteService<any>;
 };
 
 /** The typed `ServiceClient` map exposed on `module.services`.\
@@ -110,19 +115,40 @@ export type ModuleServiceClients<T_Module extends ModuleDescriptor | Module<any>
   // check if ModuleDescriptor -> map to ServiceClients
   T_Module extends ModuleDescriptor
     ? {
-        [K in keyof T_Module]: ServiceClient<ExtractDescriptor<T_Module[K]>>;
+        [K in keyof T_Module]: ServiceToClient<T_Module[K]>;
       }
     : // no. check if Module -> map to inferred ServiceClients
       T_Module extends Module<infer DESC>
       ? {
-          [K in keyof DESC]: ServiceClient<ExtractDescriptor<DESC[K]>>;
+          [K in keyof DESC]: ServiceToClient<DESC[K]>;
         }
       : //no. won't happen
         never;
 
+/** converts :
+ * - `Service<D>` => `ServiceClient<D>`
+ * - `RemoteService<D>` => `RemoteServiceClient<D>`
+ * */
+export type ServiceToClient<S extends Service<any> | RemoteService<any>> =
+  //service
+  S extends Service<infer D>
+    ? ServiceClient<D>
+    : //remote service
+      S extends RemoteService<infer D>
+      ? RemoteServiceClient<D>
+      : //default
+        never;
+
 /** Extracts the `ServiceDescriptor` from a `Service`. */
-export type ExtractDescriptor<S extends Service<any>> =
-  S extends Service<infer D> ? D : ServiceDescriptor;
+export type ExtractDescriptor<S extends Service<any> | RemoteService<any>> =
+  //service
+  S extends Service<infer D>
+    ? D
+    : //remote service
+      S extends RemoteService<infer D>
+      ? D
+      : //default
+        ServiceDescriptor;
 
 //-------------------------------------------------------
 //-------------------------------------------------------

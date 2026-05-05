@@ -1,4 +1,5 @@
-import type { StateClient, StateListener, StateSelectFn } from '../types/types.js';
+import type { StateListener, StateSelectFn } from '../types/types.js';
+import type { StateClient } from '../types/stateClient.js';
 import { StateClient_base } from './stateClient_base.js';
 
 export class StateClient_imp<S> extends StateClient_base<S> {
@@ -9,11 +10,11 @@ export class StateClient_imp<S> extends StateClient_base<S> {
     this.source = source;
   }
 
-  get() {
-    return this.source.get();
+  get<U = S>(select?: StateSelectFn<S, U>): U {
+    return this.source.get(select);
   }
-  getInitialState() {
-    return this.source.getInitialState();
+  getInitialState<U = S>(select?: StateSelectFn<S, U>): U {
+    return this.source.getInitialState(select);
   }
   subscribe(listener: StateListener<S>) {
     return this.source.subscribe(listener);
