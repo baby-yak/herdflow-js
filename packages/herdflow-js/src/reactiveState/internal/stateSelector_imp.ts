@@ -1,12 +1,13 @@
 import type { UnsubscribeFn } from '../../core/types.js';
-import type { StateClient } from '../types/stateClient.js';
+import type { ReactiveStateClient } from '../types/reactiveStateClient.js';
+
 import type { StateListener, StateSelectFn } from '../types/types.js';
 
-export class StateSelector_imp<S, U> implements StateClient<U> {
-  private source: StateClient<S>;
+export class StateSelector_imp<S, U> implements ReactiveStateClient<U> {
+  private source: ReactiveStateClient<S>;
   private fn: StateSelectFn<S, U>;
 
-  constructor(source: StateClient<S>, fn: StateSelectFn<S, U>) {
+  constructor(source: ReactiveStateClient<S>, fn: StateSelectFn<S, U>) {
     this.source = source;
     this.fn = fn;
   }
@@ -50,7 +51,7 @@ export class StateSelector_imp<S, U> implements StateClient<U> {
       prev = selected;
     });
   }
-  select<W>(selector: StateSelectFn<U, W>): StateClient<W> {
+  select<W>(selector: StateSelectFn<U, W>): ReactiveStateClient<W> {
     const fn: StateSelectFn<S, W> = (state) => {
       const sub = this.fn(state);
       return selector(sub);

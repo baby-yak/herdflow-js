@@ -1,10 +1,10 @@
 import type { UnsubscribeFn } from '../../core/types.js';
 import { EventEmitter } from '../../events/eventEmitter.js';
 import type { EventClient } from '../../events/index.js';
+import type { ReactiveStateClient } from '../../reactiveState/index.js';
+import { ReactiveState } from '../../reactiveState/reactiveState.js';
 import { _SERVICE_LIFECYCLE_ } from '../../services/internal/types.js';
 import type { Service } from '../../services/service.js';
-import type { StateClient } from '../../state/index.js';
-import { ReactiveState } from '../../state/reactiveState.js';
 import { createDebugLogger } from '../../utils/debugLogger.js';
 import { AsyncMutex } from '../../utils/mutex.js';
 import type {
@@ -40,7 +40,7 @@ export class Module_Imp<T_Module extends ModuleDescriptor>
   private _state: ReactiveState<ModuleState>;
   private _events: EventEmitter<ModuleEvents>;
 
-  readonly state: StateClient<ModuleState>;
+  readonly state: ReactiveStateClient<ModuleState>;
   readonly events: EventClient<ModuleEvents>;
 
   constructor(services: T_Module, params?: ModuleConstructionParams) {

@@ -1,4 +1,4 @@
-import { type ServiceClient, type StateClient, type StateSelectFn } from '@baby-yak/herdflow-js';
+import type { ReactiveState, ReactiveStateClient, StateSelectFn } from '@baby-yak/herdflow-js';
 import { type DependencyList, useCallback, useSyncExternalStore } from 'react';
 import { extractState } from '../utils.js';
 
@@ -11,10 +11,7 @@ import { extractState } from '../utils.js';
  * @param target a service client with state or a reactive state client
  * @param deps optional DependencyList
  */
-export function useReactiveState<S>(
-  target: StateClient<S> | ServiceClient<{ state: S }>,
-  deps?: DependencyList,
-): S;
+export function useReactiveState<S>(target: ReactiveStateClient<S>, deps?: DependencyList): S;
 
 //-------------------------------------------------------
 // overload 2: with select function
@@ -28,7 +25,7 @@ export function useReactiveState<S>(
  * @param deps optional DependencyList
  */
 export function useReactiveState<S, U = S>(
-  target: StateClient<S> | ServiceClient<{ state: S }>,
+  target: ReactiveState<S>,
   selector: StateSelectFn<S, U>,
   deps?: DependencyList,
 ): U;
@@ -38,7 +35,7 @@ export function useReactiveState<S, U = S>(
 //-------------------------------------------------------
 
 export function useReactiveState<S, U = S>(
-  a: StateClient<S> | ServiceClient<{ state: S }>,
+  a: ReactiveStateClient<S>,
   b?: StateSelectFn<S, U> | DependencyList,
   c?: DependencyList,
 ) {
@@ -67,7 +64,7 @@ export function useReactiveState<S, U = S>(
 //-------------------------------------------------------
 
 function useReactiveState_imp<S, U = S>(
-  target: StateClient<S> | ServiceClient<{ state: S }>,
+  target: ReactiveStateClient<S>,
   selector: StateSelectFn<S, U> | undefined,
   deps: DependencyList,
 ) {
@@ -103,9 +100,9 @@ function useReactiveState_imp<S, U = S>(
  * 2. if selector function exists - return selected, otherwise - return as is
  */
 function getStateClient<S, U = S>(
-  target: StateClient<S> | ServiceClient<{ state: S }>,
+  target: ReactiveStateClient<S>,
   selector: StateSelectFn<S, U> | undefined,
-): StateClient<U | S> {
+): ReactiveStateClient<U | S> {
   const state = extractState(target);
   if (selector) {
     return state.select(selector);

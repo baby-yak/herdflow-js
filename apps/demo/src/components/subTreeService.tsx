@@ -39,6 +39,6 @@ function Inner1({}: Inner1Props) {
 type Inner2Props = {};
 function Inner2({}: Inner2Props) {
   const counter = useService();
-  const state = useReactiveState(counter, (s) => s.count);
+  const state = useReactiveState(counter.state);
   return <div className={classNames(styles.Inner)}>inner count = {state}</div>;
 }

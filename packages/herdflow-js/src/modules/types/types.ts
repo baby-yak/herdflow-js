@@ -1,7 +1,7 @@
 import type { EventClient } from '../../events/index.js';
+import type { ReactiveStateClient } from '../../reactiveState/index.js';
+import type { BaseService } from '../../services/_baseService.js';
 import type { ServiceClient } from '../../services/index.js';
-import type { Service } from '../../services/service.js';
-import type { StateClient } from '../../state/index.js';
 
 /**
  * Orchestrates a set of services through a shared lifecycle.
@@ -56,7 +56,7 @@ export interface Module<
  */
 export interface ModuleClient<T_Module extends ModuleDescriptor = ModuleDescriptor> {
   /** Reactive lifecycle state — subscribe to react to `isStarted` changes. */
-  readonly state: StateClient<ModuleState>;
+  readonly state: ReactiveStateClient<ModuleState>;
   /** Lifecycle events — fired after `start()` and `stop()` complete. */
   readonly events: EventClient<ModuleEvents>;
   /** Typed `ServiceClient` map, keyed by the same names as the constructor input. */
@@ -91,7 +91,7 @@ export type ModuleEvents = {
  * };
  */
 export type ModuleDescriptor = {
-  [key: string]: Service<any>;
+  [key: string]: BaseService<any, any>;
 };
 
 /** The typed `ServiceClient` map exposed on `module.services`.\
@@ -117,11 +117,12 @@ export type ModuleServiceClients<T_Module extends ModuleDescriptor | Module<any>
  * - `Service<D>` => `ServiceClient<D>`
  * - `RemoteService<D>` => `RemoteServiceClient<D>`
  * */
-export type ServiceToClient<S extends Service<any>> =
-  S extends Service<infer D> ? ServiceClient<D> : never;
+export type ServiceToClient<S extends BaseService<any, any>> =
+  S extends BaseService<infer SP, infer D> ? ServiceClient<SP, D> : never;
 
 /** Extracts the `ServiceDescriptor` from a `Service`. */
-export type ExtractDescriptor<S extends Service<any>> = S extends Service<infer D> ? D : never;
+export type ExtractDescriptor<S extends BaseService<any, any>> =
+  S extends BaseService<any, infer D> ? D : never;
 
 //-------------------------------------------------------
 //-------------------------------------------------------

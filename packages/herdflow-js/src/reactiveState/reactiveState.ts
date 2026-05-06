@@ -1,9 +1,10 @@
 import { enableMapSet, produce, type Draft } from 'immer';
 import type { UnsubscribeFn } from '../core/types.js';
+import type { StateProvider } from '../state/index.js';
 import { StateClient_imp } from './internal/stateClient_imp.js';
 import { StateSelector_imp } from './internal/stateSelector_imp.js';
 import { isPlainObject } from './internal/utils.js';
-import { type StateClient } from './types/stateClient.js';
+import type { ReactiveStateClient } from './types/reactiveStateClient.js';
 import {
   type StateConstructionParams,
   type StateListener,
@@ -40,7 +41,7 @@ const DEFAULT_OPTIONS: Required<StateConstructionParams> = {
  * state.update(draft => { draft.count++; });
  * ```
  */
-export class ReactiveState<S> implements StateClient<S> {
+export class ReactiveState<S> implements StateProvider {
   //instance marker
 
   private _initial: S;
@@ -52,7 +53,7 @@ export class ReactiveState<S> implements StateClient<S> {
    * Returns a {@link StateClient} facade that exposes only the read-only interface.
    * Safe to hand to consumers that should not be able to mutate state.
    */
-  readonly client: StateClient<S>;
+  readonly client: ReactiveStateClient<S>;
 
   constructor(initial: S, options?: StateConstructionParams) {
     this._initial = initial;
@@ -112,7 +113,7 @@ export class ReactiveState<S> implements StateClient<S> {
     };
   }
 
-  select<U>(selector: StateSelectFn<S, U>): StateClient<U> {
+  select<U>(selector: StateSelectFn<S, U>): ReactiveStateClient<U> {
     return new StateSelector_imp(this, selector);
   }
 

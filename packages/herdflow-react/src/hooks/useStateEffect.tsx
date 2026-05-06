@@ -1,6 +1,6 @@
 import type {
+  ReactiveStateClient,
   ServiceClient,
-  StateClient,
   StateListener,
   StateSelectFn,
 } from '@baby-yak/herdflow-js';
@@ -20,7 +20,7 @@ import { extractState } from '../utils.js';
  * @param deps controls when the subscription is re-created — include any values the callback closes over
  */
 export function useStateEffect<S>(
-  target: StateClient<S> | ServiceClient<{ state: S }>,
+  target: ReactiveStateClient<S> | ServiceClient<ReactiveStateClient<S>, { state: S }>,
   callback: StateListener<S>,
   deps?: DependencyList,
 ): void;
@@ -39,7 +39,7 @@ export function useStateEffect<S>(
  * @param deps controls when the subscription is re-created — include any values the callback closes over
  */
 export function useStateEffect<S, U = S>(
-  target: StateClient<S> | ServiceClient<{ state: S }>,
+  target: ReactiveStateClient<S> | ServiceClient<ReactiveStateClient<S>, { state: S }>,
   selector: StateSelectFn<S, U>,
   callback: StateListener<U>,
   deps?: DependencyList,
@@ -50,7 +50,7 @@ export function useStateEffect<S, U = S>(
 //-------------------------------------------------------
 
 export function useStateEffect<S, U = S>(
-  a: StateClient<S> | ServiceClient<{ state: S }>,
+  a: ReactiveStateClient<S> | ServiceClient<ReactiveStateClient<S>, { state: S }>,
   b: StateListener<S> | StateSelectFn<S, U>,
   c?: DependencyList | StateListener<U>,
   d?: DependencyList,
@@ -77,7 +77,7 @@ export function useStateEffect<S, U = S>(
 //-------------------------------------------------------
 
 function useStateEffect_imp<S, U = S>(
-  target: StateClient<S> | ServiceClient<{ state: S }>,
+  target: ReactiveStateClient<S> | ServiceClient<ReactiveStateClient<S>, { state: S }>,
   selector: StateSelectFn<S, U> | undefined,
   callback: StateListener<any>,
   deps?: DependencyList,

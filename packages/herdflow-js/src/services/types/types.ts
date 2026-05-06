@@ -1,6 +1,5 @@
 import type { ActionMap, ActionsConstructionParams } from '../../actions/index.js';
 import type { EventMap, EventsConstructionParams } from '../../events/index.js';
-import type { StateConstructionParams } from '../../state/index.js';
 
 /**
  * Describes the shape of a service — its state type, event map, and action map.
@@ -17,7 +16,7 @@ import type { StateConstructionParams } from '../../state/index.js';
  * class ServerService extends Service<IServer> { ... }
  */
 export type ServiceDescriptor = {
-  state?: any;
+  state?: any;  
   events?: EventMap;
   actions?: ActionMap;
 };
@@ -35,7 +34,6 @@ export type DescActions<SD extends ServiceDescriptor> = SD['actions'] extends Ac
 
 /** Advanced construction options passed to the underlying state, events, and actions subsystems. */
 export type ServiceConstructionParams = {
-  state?: StateConstructionParams;
   events?: EventsConstructionParams;
   actions?: ActionsConstructionParams;
 };
