@@ -6,14 +6,20 @@ import { StateSelector_imp } from './internal/stateSelector_imp.js';
 import { isPlainObject } from './internal/utils.js';
 import type { ReactiveStateClient } from './types/reactiveStateClient.js';
 import {
-  type StateConstructionParams,
   type StateListener,
+  type StateListenersErrorHandlingType,
   type StateSelectFn,
 } from './types/types.js';
 
 //-------------------------------------------------------
 // -- enables immer Map/Set support globally — see README
 enableMapSet();
+
+/** Options passed to the {@link ReactiveState} constructor. */
+export type ReactiveStateParams = {
+  /** how to handle when a listener throws an error — default is `"warn"` */
+  listenersErrorHandling?: StateListenersErrorHandlingType;
+};
 
 //-------------------------------------------------------
 //-- types
@@ -22,7 +28,7 @@ type ListenerContainer<S> = {
   listener: StateListener<S>;
 };
 
-const DEFAULT_OPTIONS: Required<StateConstructionParams> = {
+const DEFAULT_OPTIONS: Required<ReactiveStateParams> = {
   listenersErrorHandling: 'warn',
 };
 
@@ -41,13 +47,15 @@ const DEFAULT_OPTIONS: Required<StateConstructionParams> = {
  * state.update(draft => { draft.count++; });
  * ```
  */
-export class ReactiveState<S> implements StateProvider<ReactiveStateClient<S>> {
+export class ReactiveState<S> implements StateProvider<
+  ReactiveStateClient<S>
+> {
   //instance marker
 
   private _initial: S;
   private _state: S;
   private _listeners: ListenerContainer<S>[];
-  private _options: Required<StateConstructionParams>;
+  private _options: Required<ReactiveStateParams>;
 
   /**
    * Returns a {@link StateClient} facade that exposes only the read-only interface.
@@ -55,7 +63,7 @@ export class ReactiveState<S> implements StateProvider<ReactiveStateClient<S>> {
    */
   readonly client: ReactiveStateClient<S>;
 
-  constructor(initial: S, options?: StateConstructionParams) {
+  constructor(initial: S, options?: ReactiveStateParams) {
     this._initial = initial;
     this._state = initial;
     this._listeners = [];
@@ -103,13 +111,17 @@ export class ReactiveState<S> implements StateProvider<ReactiveStateClient<S>> {
         this._handleListenerException(error);
       }
     };
-    const container: ListenerContainer<S> = { listener: safeListener };
+    const container: ListenerContainer<S> = {
+      listener: safeListener,
+    };
     this._listeners.push(container);
 
     safeListener(this.get(), undefined);
 
     return () => {
-      this._listeners = this._listeners.filter((x) => x !== container);
+      this._listeners = this._listeners.filter(
+        (x) => x !== container,
+      );
     };
   }
 
@@ -136,7 +148,9 @@ export class ReactiveState<S> implements StateProvider<ReactiveStateClient<S>> {
         recipe(draft);
       });
     } else {
-      next = isPlainObject(prev) ? { ...prev, ...recipe } : (recipe as S);
+      next = isPlainObject(prev)
+        ? { ...prev, ...recipe }
+        : (recipe as S);
     }
     this.set(next);
   }

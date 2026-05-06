@@ -6,11 +6,15 @@ import type {
   ActionHandler,
   ActionMap,
   ActionNames,
-  ActionsConstructionParams,
   Invoker,
 } from './types/types.js';
 
-export class ActionExecuter<T_Map extends ActionMap = ActionMap> implements ActionClient<T_Map> {
+//export type ActionsConstructionParams = {};
+export type ActionExecuterParams = object;
+
+export class ActionExecuter<
+  T_Map extends ActionMap = ActionMap,
+> implements ActionClient<T_Map> {
   /**
    * invoke actions with this
    */
@@ -20,7 +24,7 @@ export class ActionExecuter<T_Map extends ActionMap = ActionMap> implements Acti
   readonly client: ActionClient<T_Map>;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  constructor(_params?: ActionsConstructionParams) {
+  constructor(_params?: ActionExecuterParams) {
     //create the invoker
     this.invoke = createInvoker(this._exec);
     this.client = new ActionsClient_imp(this.invoke);
@@ -59,7 +63,10 @@ export class ActionExecuter<T_Map extends ActionMap = ActionMap> implements Acti
 
     //handler function for a specific method
     const action = action_or_handler as string | number;
-    return this._setHandler_fn(action, handlerFn as ActionHandler<T_Map, typeof action>);
+    return this._setHandler_fn(
+      action,
+      handlerFn as ActionHandler<T_Map, typeof action>,
+    );
   }
 
   //-------------------------------------------------------

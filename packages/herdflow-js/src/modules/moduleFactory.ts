@@ -1,6 +1,6 @@
 import { Module_Imp } from './internal/module_imp.js';
 import type { Module } from './types/module.js';
-import type { ModuleConstructionParams, ModuleDescriptor } from './types/types.js';
+import type { ModuleParams, ModuleDescriptor } from './types/types.js';
 
 //-------------------------------------------------------
 // two overloads for creating a module - explicit and implicit module descriptor
@@ -30,7 +30,7 @@ import type { ModuleConstructionParams, ModuleDescriptor } from './types/types.j
  */
 export function createModule<T_Module extends ModuleDescriptor>(
   services: T_Module,
-  params?: ModuleConstructionParams,
+  params?: ModuleParams,
 ): Module<T_Module> {
   return new Module_Imp(services, params);
 }

@@ -10,7 +10,7 @@ import { AsyncMutex } from '../../utils/mutex.js';
 import type { Module } from '../types/module.js';
 import type { ModuleClient } from '../types/moduleClient.js';
 import type {
-  ModuleConstructionParams,
+  ModuleParams,
   ModuleDescriptor,
   ModuleEvents,
   ModuleServiceClients,
@@ -19,7 +19,7 @@ import type {
 import { ModuleClient_imp } from './moduleClient_imp.js';
 
 export class Module_Imp<T_Module extends ModuleDescriptor> implements Module<T_Module> {
-  private params: Required<ModuleConstructionParams>;
+  private params: Required<ModuleParams>;
   private servicesImplementors: T_Module;
 
   private longestServiceName = 0;
@@ -41,7 +41,7 @@ export class Module_Imp<T_Module extends ModuleDescriptor> implements Module<T_M
   readonly state: ReactiveStateClient<ModuleState>;
   readonly events: EventClient<ModuleEvents>;
 
-  constructor(services: T_Module, params?: ModuleConstructionParams) {
+  constructor(services: T_Module, params?: ModuleParams) {
     this.params = {
       ...{
         verbose: false,

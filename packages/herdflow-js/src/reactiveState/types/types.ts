@@ -15,9 +15,3 @@ export type StateSelectFn<S, U> = (state: S) => U;
 //-------------------------------------------------------
 
 export type StateListenersErrorHandlingType = ListenersErrorHandlingType<(error: unknown) => void>;
-
-/** Options passed to the {@link ReactiveState} constructor. */
-export type StateConstructionParams = {
-  /** how to handle when a listener throws an error — default is `"warn"` */
-  listenersErrorHandling?: StateListenersErrorHandlingType;
-};

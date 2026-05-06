@@ -1,5 +1,5 @@
-import type { ActionMap, ActionsConstructionParams } from '../../actions/index.js';
-import type { EventMap, EventsConstructionParams } from '../../events/index.js';
+import type { ActionMap } from '../../actions/index.js';
+import type { EventMap } from '../../events/index.js';
 
 /**
  * Describes the shape of a service — its state type, event map, and action map.
@@ -16,24 +16,30 @@ import type { EventMap, EventsConstructionParams } from '../../events/index.js';
  * class ServerService extends Service<IServer> { ... }
  */
 export type ServiceDescriptor = {
-  state?: any;  
+  state?: any;
   events?: EventMap;
   actions?: ActionMap;
+};
+
+export type DefaultServiceDescriptor = {
+  state: undefined;
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  events: {};
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  actions: {};
 };
 
 // Extract each field from a ServiceDescriptor, with sensible defaults
 export type DescState<SD extends ServiceDescriptor> = SD['state'];
 
-export type DescEvents<SD extends ServiceDescriptor> = SD['events'] extends EventMap
-  ? SD['events']
-  : EventMap;
+export type DescEvents<SD extends ServiceDescriptor> =
+  SD['events'] extends EventMap
+    ? SD['events']
+    : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+      {};
 
-export type DescActions<SD extends ServiceDescriptor> = SD['actions'] extends ActionMap
-  ? SD['actions']
-  : ActionMap;
-
-/** Advanced construction options passed to the underlying state, events, and actions subsystems. */
-export type ServiceConstructionParams = {
-  events?: EventsConstructionParams;
-  actions?: ActionsConstructionParams;
-};
+export type DescActions<SD extends ServiceDescriptor> =
+  SD['actions'] extends ActionMap
+    ? SD['actions']
+    : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+      {};

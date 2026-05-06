@@ -37,16 +37,19 @@ export type ModuleDescriptor = {
  * and convert it to : `{ [name] : ServiceClient<descriptor> }`\
  * this is the type of the `myModule.services` fields
  */
-export type ModuleServiceClients<T_Module extends ModuleDescriptor> = {
-  [K in keyof T_Module]: ServiceToClient<T_Module[K]>;
-};
+export type ModuleServiceClients<T_Module extends ModuleDescriptor> =
+  {
+    [K in keyof T_Module]: ServiceToClient<T_Module[K]>;
+  };
 
 /** converts :
  * - `Service<D>` => `ServiceClient<D>`
  * - `RemoteService<D>` => `RemoteServiceClient<D>`
  * */
 export type ServiceToClient<S extends RawService<any, any>> =
-  S extends RawService<infer SP, infer D> ? ServiceClient<SP, D> : never;
+  S extends RawService<infer SP, infer D>
+    ? ServiceClient<SP, D>
+    : never;
 
 /** Extracts the `ServiceDescriptor` from a `Service`. */
 export type ExtractDescriptor<S extends RawService<any, any>> =
@@ -56,7 +59,7 @@ export type ExtractDescriptor<S extends RawService<any, any>> =
 //-------------------------------------------------------
 
 /** Construction options for a `Module`. */
-export type ModuleConstructionParams = {
+export type ModuleParams = {
   /** Log each lifecycle phase transition for every service. Default: `false`. */
   verbose?: boolean;
 };
