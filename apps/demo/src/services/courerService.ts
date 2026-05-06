@@ -29,11 +29,11 @@ export class CounterService extends Service<ICounter> {
     super('counter', { count: 0, step: 1, running: false });
     this.actions.setHandler(this);
   }
-  protected async onServiceInit() {
+  async onServiceInit() {
     await delay(1000);
 
     // test for error handling
-    // throw new Error("counter died!") 
+    // throw new Error("counter died!")
   }
   start() {
     clearInterval(this.timer);

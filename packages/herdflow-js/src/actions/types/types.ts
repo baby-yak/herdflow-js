@@ -29,9 +29,5 @@ export type ActionHandler<
 
 export type Invoker<T_Map extends ActionMap = ActionMap> = { [K in keyof T_Map]: T_Map[K] };
 
-export interface ActionClient<T_Map extends ActionMap = ActionMap> {
-  readonly invoke: Invoker<T_Map>;
-}
-
 //export type ActionsConstructionParams = {};
 export type ActionsConstructionParams = object;

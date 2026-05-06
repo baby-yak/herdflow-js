@@ -41,7 +41,7 @@ const DEFAULT_OPTIONS: Required<StateConstructionParams> = {
  * state.update(draft => { draft.count++; });
  * ```
  */
-export class ReactiveState<S> implements StateProvider {
+export class ReactiveState<S> implements StateProvider<ReactiveStateClient<S>> {
   //instance marker
 
   private _initial: S;

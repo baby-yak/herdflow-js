@@ -1,8 +1,8 @@
 import type { EventClient } from '../../events/index.js';
 import type { ReactiveStateClient } from '../../reactiveState/index.js';
+import type { Module } from '../types/module.js';
+import type { ModuleClient } from '../types/moduleClient.js';
 import type {
-  Module,
-  ModuleClient,
   ModuleDescriptor,
   ModuleEvents,
   ModuleServiceClients,

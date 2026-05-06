@@ -7,9 +7,9 @@ import { _SERVICE_LIFECYCLE_ } from '../../services/internal/types.js';
 import type { Service } from '../../services/service.js';
 import { createDebugLogger } from '../../utils/debugLogger.js';
 import { AsyncMutex } from '../../utils/mutex.js';
+import type { Module } from '../types/module.js';
+import type { ModuleClient } from '../types/moduleClient.js';
 import type {
-  Module,
-  ModuleClient,
   ModuleConstructionParams,
   ModuleDescriptor,
   ModuleEvents,
@@ -18,9 +18,7 @@ import type {
 } from '../types/types.js';
 import { ModuleClient_imp } from './moduleClient_imp.js';
 
-export class Module_Imp<T_Module extends ModuleDescriptor>
-  implements Module<T_Module>, ModuleClient<T_Module>
-{
+export class Module_Imp<T_Module extends ModuleDescriptor> implements Module<T_Module> {
   private params: Required<ModuleConstructionParams>;
   private servicesImplementors: T_Module;
 

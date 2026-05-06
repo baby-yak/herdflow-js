@@ -12,7 +12,7 @@ import type { DescActions, DescEvents, ServiceDescriptor } from './types.js';
  * and stored in `module.services`.
  */
 export interface ServiceClient<
-  T_StateClient,
+  StateClient,
   Descriptor extends ServiceDescriptor = ServiceDescriptor,
 > {
   /** Read-only access to the service's name. */
@@ -22,7 +22,7 @@ export interface ServiceClient<
   readonly invoke: Invoker<DescActions<Descriptor>>;
 
   /** Read-only access to the service's reactive state. */
-  readonly state: T_StateClient;
+  readonly state: StateClient;
 
   /** Subscribe to events emitted by the service. */
   readonly events: EventClient<DescEvents<Descriptor>>;

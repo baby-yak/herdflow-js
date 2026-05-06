@@ -2,7 +2,7 @@ import { ActionExecuter, type Invoker } from '../actions/index.js';
 import { EventEmitter } from '../events/index.js';
 import type { ModuleClient, ModuleDescriptor } from '../modules/index.js';
 import type { StateProvider } from '../state/index.js';
-import { MARKER_SERVICE, MARKER_SERVICE_CLIENT } from './internal/markers.js';
+import { MARKER_SERVICE } from './internal/markers.js';
 import { ServiceClient_imp } from './internal/serviceClient_imp.js';
 import { _SERVICE_LIFECYCLE_ } from './internal/types.js';
 import type { ServiceClient } from './types/serviceClient.js';
@@ -13,34 +13,10 @@ import type {
   ServiceDescriptor,
 } from './types/types.js';
 
-/**
- * Base class for all services. Extend this class and pass a `ServiceDescriptor`
- * to define the service's typed state, events, and actions.
- *
- * @example
- * type IServer = {
- *   state: { address: string };
- *   events: { connected: () => void };
- *   actions: { connect(port: number): void };
- * };
- *
- * class ServerService extends Service<IServer> {
- *   constructor() {
- *     super('server', { address: '' });
- *     this.actions.setHandler(this);
- *   }
- *
- *   connect(port: number) {
- *     this.state.update(s => { s.address = `host:${port}`; });
- *     this.events.emit('connected');
- *   }
- * }
- */
-export abstract class BaseService<
-  T_StateProvider extends StateProvider,
-  Descriptor extends ServiceDescriptor = ServiceDescriptor,
-> implements ServiceClient<T_StateProvider['client'], Descriptor> {
-  [MARKER_SERVICE_CLIENT] = true;
+export abstract class RawService<
+  T_StateProvider extends StateProvider<unknown>,
+  Descriptor extends ServiceDescriptor,
+> {
   [MARKER_SERVICE] = true;
 
   private _module: ModuleClient | undefined;
@@ -82,7 +58,7 @@ export abstract class BaseService<
     this.actions = new ActionExecuter<DescActions<Descriptor>>(params?.actions);
     this.invoke = this.actions.invoke;
 
-    this.client = new ServiceClient_imp<T_StateProvider, Descriptor>(this);
+    this.client = new ServiceClient_imp<T_StateProvider['client'], Descriptor>(this);
   }
 
   /**
@@ -115,40 +91,14 @@ export abstract class BaseService<
     this._module = module;
   }
 
-  /**
-   * Called first during `module.start()`.
-   * Use for self-contained initialization that does not depend on other services
-   * (e.g. connecting to a database, reading config, setting up internal state).
-   *
-   * `getModule()` is **not** available here — the module is injected after this phase.
-   */
-  protected onServiceInit(): void | Promise<void> {}
-
-  /**
-   * Called after all services have completed `onServiceInit`.
-   * `getModule()` is available from this point on.
-   *
-   * Use for inter-service wiring — register cross-service listeners,
-   * read state from sibling services, or invoke actions on them.
-   */
-  protected onServiceStart(): void | Promise<void> {}
-
-  /**
-   * Called after all services have completed `onServiceStart`.
-   * Use for final setup that must happen after all services are fully started
-   * (e.g. a server registering a catch-all route after all other routes are mounted).
-   */
-  protected onServiceAfterStart(): void | Promise<void> {}
-
-  /**
-   * Called first during `module.stop()`, while all services are still running.
-   * Use for any cross-service operations that must happen before services begin shutting down.
-   */
-  protected onServiceBeforeStop(): void | Promise<void> {}
-
-  /**
-   * Called after all services have completed `onServiceBeforeStop`.
-   * Use for self-contained teardown (e.g. closing connections, unregistering listeners).
-   */
-  protected onServiceStop(): void | Promise<void> {}
+  /** Called first during `module.start()`. Use for standalone setup (DB connect, config load, etc.). */
+  onServiceInit(): void | Promise<void> {}
+  /** Called after all services have initialized. Safe for cross-service wiring — listeners, state reads, action calls. */
+  onServiceStart(): void | Promise<void> {}
+  /** Called after all services have started. Use for final setup that depends on all services being fully running. */
+  onServiceAfterStart(): void | Promise<void> {}
+  /** Called first during `module.stop()`, while all services are still live. Use for cross-service ops before teardown. */
+  onServiceBeforeStop(): void | Promise<void> {}
+  /** Called after all services have completed `onBeforeStop`. Use for standalone teardown — close connections, unregister listeners. */
+  onServiceStop(): void | Promise<void> {}
 }

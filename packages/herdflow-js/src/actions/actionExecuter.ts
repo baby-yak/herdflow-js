@@ -1,8 +1,8 @@
 import { ActionsClient_imp } from './internal/actionsClient_imp.js';
 import { ActionExecutionMapping } from './internal/types.js';
 import { createInvoker } from './internal/utils.js';
+import type { ActionClient } from './types/actionClient.js';
 import type {
-  ActionClient,
   ActionHandler,
   ActionMap,
   ActionNames,
@@ -11,6 +11,9 @@ import type {
 } from './types/types.js';
 
 export class ActionExecuter<T_Map extends ActionMap = ActionMap> implements ActionClient<T_Map> {
+  /**
+   * invoke actions with this
+   */
   readonly invoke: Invoker<T_Map>;
 
   private _exec = new ActionExecutionMapping<T_Map>();
@@ -27,10 +30,19 @@ export class ActionExecuter<T_Map extends ActionMap = ActionMap> implements Acti
   //-- setHandler
   //-------------------------------------------------------
 
+  /**
+   *
+   * @param action the action name
+   * @param handlerFn the function to handle it
+   */
   setHandler<T_Action extends ActionNames<T_Map>>(
     action: T_Action,
     handlerFn: ActionHandler<T_Map, T_Action>,
   ): this;
+  /**
+   *
+   * @param handler map of handlers { "action": handler }. this can be an object or class instance (or this)
+   */
   setHandler(handler: T_Map): this;
 
   setHandler(action_or_handler: unknown, handlerFn?: unknown): this {

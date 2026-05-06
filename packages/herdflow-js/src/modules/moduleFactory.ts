@@ -1,5 +1,6 @@
 import { Module_Imp } from './internal/module_imp.js';
-import type { Module, ModuleConstructionParams, ModuleDescriptor } from './types/types.js';
+import type { Module } from './types/module.js';
+import type { ModuleConstructionParams, ModuleDescriptor } from './types/types.js';
 
 //-------------------------------------------------------
 // two overloads for creating a module - explicit and implicit module descriptor

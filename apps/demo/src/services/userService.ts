@@ -27,7 +27,7 @@ export class UsersService extends Service<IUsers> {
     this.actions.setHandler(this);
   }
 
-  protected async onServiceInit() {
+  async onServiceInit() {
     await delay(1000);
   }
 
