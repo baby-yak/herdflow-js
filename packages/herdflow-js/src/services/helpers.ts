@@ -1,9 +1,9 @@
 import { targetIs } from '../utils/utils.js';
 import { MARKER_SERVICE, MARKER_SERVICE_CLIENT } from './internal/markers.js';
-import type { Service } from './service.js';
+import type { RawService } from './rawService.js';
 import type { ServiceClient } from './types/serviceClient.js';
 
-export function isService(x: unknown): x is Service<any> {
+export function isService(x: unknown): x is RawService<any, any> {
   return targetIs(x, MARKER_SERVICE);
 }
 
