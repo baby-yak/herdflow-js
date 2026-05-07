@@ -289,7 +289,7 @@ class ServerService extends Service<IServer> {
 
 ```ts
 class ServerService extends Service<IServer> {
-  private db!: ServiceClient<IDatabase>; // set in onServiceStart
+  private db!: ServiceToClient<Service<IDatabase>>; // set in onServiceStart
 
   onServiceStart() {
     this.db = this.getModule<AppModule>().services.db;

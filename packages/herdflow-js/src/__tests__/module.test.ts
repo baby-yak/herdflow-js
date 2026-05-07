@@ -32,7 +32,7 @@ class CounterService extends Service<ICounter> {
 class LoggerService extends Service<ILogger> {
   readonly log = vi.fn();
   constructor() {
-    super('logger', undefined);
+    super(undefined, { name: 'logger' });
     this.actions.setHandler('log', this.log);
   }
 }

@@ -50,7 +50,7 @@ import { Service } from '@baby-yak/herdflow-js';
 
 class ServerService extends Service<IServer> {
   constructor() {
-    super('server', { address: '' });
+    super({ address: '' }, { name: 'server' });
     this.actions.setHandler(this);
   }
 
