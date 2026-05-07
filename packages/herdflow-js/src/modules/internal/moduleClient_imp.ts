@@ -1,24 +1,22 @@
 import type { EventClient } from '../../events/index.js';
-import type { StateClient } from '../../state/index.js';
+import type { ReactiveStateClient } from '../../reactiveState/index.js';
+import type { Module } from '../types/module.js';
+import type { ModuleClient } from '../types/moduleClient.js';
 import type {
-  ConcreteModuleDescriptor,
-  Module,
+  ModuleDescriptor,
   ModuleEvents,
   ModuleServiceClients,
   ModuleState,
 } from '../types/types.js';
-import { ModuleClient_base } from './moduleClient_base.js';
 
-export class ModuleClient_imp<
-  T_Module extends ConcreteModuleDescriptor,
-> extends ModuleClient_base<T_Module> {
-  readonly state: StateClient<ModuleState>;
+export class ModuleClient_imp<M extends ModuleDescriptor> implements ModuleClient<M> {
+  readonly name: string;
+  readonly state: ReactiveStateClient<ModuleState>;
   readonly events: EventClient<ModuleEvents>;
-  readonly services: ModuleServiceClients<T_Module>;
+  readonly services: ModuleServiceClients<M>;
 
-  constructor(source: Module<T_Module>) {
-    super();
-
+  constructor(source: Module<M>) {
+    this.name = source.name;
     this.state = source.state;
     this.events = source.events;
     this.services = source.services;

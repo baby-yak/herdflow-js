@@ -7,12 +7,6 @@ A lifecycle orchestrator for a set of services. `createModule` wires up service 
 ```ts
 import { createModule } from '@baby-yak/herdflow-js';
 
-type App = {
-  counter: ICounter; // <- service descriptor
-  server: IServer;
-  db: IDb;
-};
-
 const app = createModule({
   counter: new CounterService(),
   server: new ServerService(),
@@ -37,6 +31,22 @@ services.server.events.on('connected', () => console.log('online'));
 services.db.state.subscribe((s) => console.log(s));
 ```
 
+## `createModule` — call signatures
+
+```ts
+// infer module shape from services passed
+createModule({ counter: new CounterService(), server: new ServerService() })
+
+// with options — name and verbose are both optional
+createModule(
+  { counter: new CounterService(), server: new ServerService() },
+  { name: 'app', verbose: true },
+)
+
+// explicit module descriptor — enforces the shape
+createModule<App>({ counter: new CounterService(), server: new ServerService() })
+```
+
 ## Defining the module type
 
 The module type can be set explicitly or inferred — without a type param, TypeScript infers the shape from the services you pass.
@@ -52,13 +62,13 @@ const app = createModule({
 ```
 
 **Explicit** — better for type safety and for swapping implementations later.
-The descriptor can accept `ServiceDescriptor`, `Service<D>`, or `ServiceClient<D>` as values:
+Values must be `Service<D>` instances (or any `RawService` subclass):
 
 ```ts
 type App = {
-  server: IServer;              // service descriptor (easiest)
-  db: Service<IDb>;             // Service<D> wrapper — also works
-  counter: ServiceClient<ICounter>; // ServiceClient<D> wrapper — also works
+  server: Service<IServer>;
+  db: Service<IDb>;
+  counter: Service<ICounter>;
 };
 
 const app = createModule<App>({
@@ -176,9 +186,7 @@ See [→ docs/services.md](./services.md) for what each lifecycle method is inte
 ```ts
 const app = createModule(
   { server: new ServerService() },
-  {
-    verbose: true, // log each lifecycle phase per service
-  },
+  { verbose: true, name: 'app' }, // name is optional
 );
 ```
 

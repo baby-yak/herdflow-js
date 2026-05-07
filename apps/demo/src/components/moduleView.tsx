@@ -4,10 +4,10 @@ import classNames from 'classnames';
 import styles from './moduleView.module.css';
 
 const TAG = 'moduleView';
-type Props = {module:ModuleClient};
+type Props = { module: ModuleClient };
 
-export default function ModuleView({module}: Props) {
-  const isStarted = useReactiveState(module.state, (s) => s.isStarted);
+export default function ModuleView({ module }: Props) {
+  const { isStarted } = useReactiveState(module.state);
   return (
     <div data-component={TAG} className={classNames(styles.root)}>
       <div className={classNames(styles.indicator)} data-is-started={isStarted}></div>

@@ -1,5 +1,4 @@
 import { EventClient_imp } from './internal/eventClient_imp.js';
-import { EventEmitter_base } from './internal/eventEmitter_base.js';
 import {
   type EventNames_Pure,
   type EventNames_Reserved,
@@ -15,8 +14,17 @@ import type {
   EventMap,
   EventNames,
   EventParams,
-  EventsConstructionParams,
 } from './types/index.js';
+
+export type EventEmitterParams = {
+  /** per event. \
+   * default is 10 */
+  maxListeners?: number;
+
+  /** how to handle when a listener throws an error \
+   * default is "warn" */
+  listenersErrorHandling?: EventListenersErrorHandlingType;
+};
 
 /**
  * container: { listener + metadata}
@@ -26,12 +34,6 @@ type Listener<T_EventMap extends EventMap = EventMap> = {
   listener: EventListener<T_EventMap, EventNames<T_EventMap>>;
   postRemoved?: ((event: EventNames<T_EventMap>) => void) | undefined;
   once: boolean;
-};
-
-type Shared<T_EventMap extends EventMap> = {
-  listeners: Map<string, Array<Listener<T_EventMap>>>;
-  defaultHandlers: Map<string, EventListener<T_EventMap, EventNames<T_EventMap>>>;
-  options: Required<EventsConstructionParams>;
 };
 
 /**
@@ -50,15 +52,20 @@ type Shared<T_EventMap extends EventMap> = {
  * emitter.emit('userJoined', 'alice');
  * ```
  */
-export class EventEmitter<
-  T_EventMap extends EventMap = EventMap,
-> extends EventEmitter_base<T_EventMap> {
+export class EventEmitter<T_EventMap extends EventMap = EventMap>
+  extends EventClient_imp<T_EventMap>
+  implements EventClient<T_EventMap>
+{
   //instance marker
 
   private static _GLOBAL_MAX_LISTENERS = 10;
 
-  /** this will be shared for all "copies" of this event emitter / event source */
-  private _shared: Shared<T_EventMap>;
+  private _listeners: Map<string, Array<Listener<T_EventMap>>>;
+  private _defaultHandlers: Map<
+    string,
+    EventListener<T_EventMap, EventNames<T_EventMap>>
+  >;
+  private _options: Required<EventEmitterParams>;
 
   /**
    * Returns a read-only view of this emitter — same listen API, no `emit`.
@@ -77,36 +84,35 @@ export class EventEmitter<
 
   /** Sets the max listener threshold for this instance. Returns `this` for chaining. */
   setMaxListeners(n: number) {
-    this._shared.options.maxListeners = n;
+    this._options.maxListeners = n;
     return this;
   }
 
   /** Returns the current max listener threshold for this instance. */
   getMaxListeners() {
-    return this._shared.options.maxListeners;
+    return this._options.maxListeners;
   }
 
   //-------------------------------------------------------
-  constructor(params?: EventsConstructionParams) {
+  constructor(params?: EventEmitterParams) {
     // root group , and undefined as source - abstract methods are self implemented (see _addListener and _removeListener)
     super({ name: 'root' }, undefined);
 
     this.client = new EventClient_imp({ name: 'client group' }, this);
 
-    this._shared = {
-      listeners: new Map(),
-      defaultHandlers: new Map(),
-      options: {
-        ...{
-          maxListeners: EventEmitter._GLOBAL_MAX_LISTENERS,
-          listenersErrorHandling: 'warn',
-        },
-        ...params,
+    this._listeners = new Map();
+    this._defaultHandlers = new Map();
+    this._options = {
+      ...{
+        maxListeners: EventEmitter._GLOBAL_MAX_LISTENERS,
+        listenersErrorHandling: 'warn',
       },
+      ...params,
     };
-
-    this._shared.options.maxListeners = params?.maxListeners ?? EventEmitter.defaultMaxListeners;
-    this._shared.options.listenersErrorHandling = params?.listenersErrorHandling ?? 'warn';
+    this._options.maxListeners =
+      params?.maxListeners ?? EventEmitter.defaultMaxListeners;
+    this._options.listenersErrorHandling =
+      params?.listenersErrorHandling ?? 'warn';
   }
   //-------------------------------------------------------
 
@@ -121,13 +127,13 @@ export class EventEmitter<
    * - `(event, err) => void` — custom handler
    */
   setListenersErrorHandling(e: EventListenersErrorHandlingType) {
-    this._shared.options.listenersErrorHandling = e;
+    this._options.listenersErrorHandling = e;
     return this;
   }
 
   /** Returns the current error handling mode. */
   getListenersErrorHandling() {
-    return this._shared.options.listenersErrorHandling;
+    return this._options.listenersErrorHandling;
   }
 
   /**
@@ -169,12 +175,12 @@ export class EventEmitter<
     listener: EventListener<T_EventMap, T_Event> | undefined,
   ): this {
     if (listener) {
-      this._shared.defaultHandlers.set(
+      this._defaultHandlers.set(
         event,
         listener as EventListener<T_EventMap, EventNames<T_EventMap>>,
       );
     } else {
-      this._shared.defaultHandlers.delete(event);
+      this._defaultHandlers.delete(event);
     }
 
     return this;
@@ -195,7 +201,7 @@ export class EventEmitter<
       }
     } else {
       //resource
-      const events = [...this._shared.listeners.keys()];
+      const events = [...this._listeners.keys()];
       for (const event of events) {
         this.removeAllListeners(event);
       }
@@ -206,9 +212,9 @@ export class EventEmitter<
   /** Returns the number of listeners registered for the given event. */
   listenerCount(event?: EventNames<T_EventMap>): number {
     if (event) {
-      return this._shared.listeners.get(event)?.length ?? 0;
+      return this._listeners.get(event)?.length ?? 0;
     } else {
-      const all = [...this._shared.listeners.values()];
+      const all = [...this._listeners.values()];
       const count = all.reduce((prev, curr) => prev + curr.length, 0);
       return count;
     }
@@ -216,7 +222,7 @@ export class EventEmitter<
 
   /** Returns an array of event names that currently have at least one listener. */
   eventNames() {
-    const all = [...this._shared.listeners.keys()];
+    const all = [...this._listeners.keys()];
     const withoutWildcard = all.filter((x) => x !== '*');
     return withoutWildcard;
   }
@@ -229,14 +235,22 @@ export class EventEmitter<
   listeners<T_Event extends EventNames<T_EventMap>>(
     event: T_Event,
   ): EventListener<T_EventMap, T_Event>[] {
-    const listeners = this._shared.listeners.get(event) || [];
-    return listeners.map((x) => x.listener) as EventListener<T_EventMap, T_Event>[];
+    const listeners = this._listeners.get(event) || [];
+    return listeners.map((x) => x.listener) as EventListener<
+      T_EventMap,
+      T_Event
+    >[];
   }
 
   /** Returns the original listener functions, without any once-wrapper logic. */
-  rawListeners<T_Event extends EventNames<T_EventMap>>(event: T_Event) {
-    const listeners = this._shared.listeners.get(event) || [];
-    return listeners.map((x) => x.listener) as EventListener<T_EventMap, T_Event>[];
+  rawListeners<T_Event extends EventNames<T_EventMap>>(
+    event: T_Event,
+  ) {
+    const listeners = this._listeners.get(event) || [];
+    return listeners.map((x) => x.listener) as EventListener<
+      T_EventMap,
+      T_Event
+    >[];
   }
 
   // for internal library use
@@ -245,8 +259,10 @@ export class EventEmitter<
     groupToken: GroupToken,
   ): void {
     if (event != null) {
-      const existing = this._shared.listeners.get(event) ?? [];
-      const fromSource = existing.filter((x) => x.groupToken === groupToken);
+      const existing = this._listeners.get(event) ?? [];
+      const fromSource = existing.filter(
+        (x) => x.groupToken === groupToken,
+      );
       for (const container of fromSource) {
         const listener = container.listener;
 
@@ -257,7 +273,7 @@ export class EventEmitter<
       }
     } else {
       //resource for all events
-      const events = [...this._shared.listeners.keys()];
+      const events = [...this._listeners.keys()];
       events.forEach((event) => {
         this._detachGroup(event, groupToken);
       });
@@ -268,17 +284,22 @@ export class EventEmitter<
   //-- utilities
   //-------------------------------------------------------
 
-  private _handleListenerException(event: EventNames<T_EventMap>, err: unknown) {
+  private _handleListenerException(
+    event: EventNames<T_EventMap>,
+    err: unknown,
+  ) {
     let shouldThrow = false;
 
     try {
-      if (typeof this._shared.options.listenersErrorHandling === 'function') {
-        this._shared.options.listenersErrorHandling(event, err);
-      } else if (this._shared.options.listenersErrorHandling === 'throw') {
+      if (
+        typeof this._options.listenersErrorHandling === 'function'
+      ) {
+        this._options.listenersErrorHandling(event, err);
+      } else if (this._options.listenersErrorHandling === 'throw') {
         shouldThrow = true;
       } else {
         const msg = `[EventEmitter] listener error on "${event}":`;
-        switch (this._shared.options.listenersErrorHandling) {
+        switch (this._options.listenersErrorHandling) {
           case 'ignore':
             break;
           case 'log':
@@ -334,11 +355,11 @@ export class EventEmitter<
     //fire all wildcard ("*") listeners
     if (emitWildcardEvent) {
       // snapshot before iterating so mid-dispatch mutations don't affect this pass
-      const containers = [...(this._shared.listeners.get('*') || [])];
+      const containers = [...(this._listeners.get('*') || [])];
 
       // no listeners -  fire default:
       if (containers.length === 0) {
-        const defaultHandler = this._shared.defaultHandlers.get('*');
+        const defaultHandler = this._defaultHandlers.get('*');
         if (defaultHandler) {
           containers.push({
             groupToken: { name: 'default' },
@@ -368,13 +389,13 @@ export class EventEmitter<
 
     //now the actual listeners
     // snapshot before iterating so mid-dispatch mutations don't affect this pass
-    const containers = [...(this._shared.listeners.get(event) || [])];
+    const containers = [...(this._listeners.get(event) || [])];
 
     // no listeners -  fire default:
     const hasListeners = containers.length > 0;
 
     if (containers.length === 0) {
-      const defaultHandler = this._shared.defaultHandlers.get(event);
+      const defaultHandler = this._defaultHandlers.get(event);
       if (defaultHandler) {
         containers.push({
           groupToken: { name: 'default' },
@@ -405,7 +426,9 @@ export class EventEmitter<
 
   //-------------------------------------------------------
   // implement abstract
-  protected override _addListener<T_Event extends EventNames<T_EventMap>>(params: {
+  protected override _addListener<
+    T_Event extends EventNames<T_EventMap>,
+  >(params: {
     groupToken: GroupToken;
     event: T_Event;
     listener: EventListener<T_EventMap, T_Event>;
@@ -413,7 +436,14 @@ export class EventEmitter<
     once?: boolean;
     prepend?: boolean;
   }): this {
-    const { event, listener, postRemoved, groupToken, once = false, prepend = false } = params;
+    const {
+      event,
+      listener,
+      postRemoved,
+      groupToken,
+      once = false,
+      prepend = false,
+    } = params;
 
     //fire (internal event)
     if (!isReservedEventName(event)) {
@@ -421,12 +451,15 @@ export class EventEmitter<
     }
 
     //get or create list
-    let listeners = this._shared.listeners.get(event) ?? [];
+    let listeners = this._listeners.get(event) ?? [];
 
     //add
     const container: Listener<T_EventMap> = {
       groupToken: groupToken,
-      listener: listener as EventListener<T_EventMap, EventNames<T_EventMap>>,
+      listener: listener as EventListener<
+        T_EventMap,
+        EventNames<T_EventMap>
+      >,
       postRemoved: postRemoved,
       once: once,
     };
@@ -436,11 +469,15 @@ export class EventEmitter<
     } else {
       listeners = [...listeners, container];
     }
-    this._shared.listeners.set(event, listeners);
+    this._listeners.set(event, listeners);
 
     const ignoreLimit =
-      this._shared.options.maxListeners === 0 || this._shared.options.maxListeners === Infinity;
-    if (!ignoreLimit && listeners.length > this._shared.options.maxListeners) {
+      this._options.maxListeners === 0 ||
+      this._options.maxListeners === Infinity;
+    if (
+      !ignoreLimit &&
+      listeners.length > this._options.maxListeners
+    ) {
       console.warn(
         `MaxListenersExceededWarning: Possible EventEmitter memory leak detected.\n${listeners.length} ${event} listeners added to [EventEmitter]. Use setMaxListeners() to increase limit`,
       );
@@ -449,13 +486,15 @@ export class EventEmitter<
   }
   //-------------------------------------------------------
   // implement abstract
-  protected override _removeListener<T_Event extends EventNames<T_EventMap>>(params: {
+  protected override _removeListener<
+    T_Event extends EventNames<T_EventMap>,
+  >(params: {
     event: T_Event;
     listener: EventListener<T_EventMap, T_Event>;
   }): this {
     const { event, listener /* ,groupToken */ } = params;
 
-    const containers = this._shared.listeners.get(event) ?? [];
+    const containers = this._listeners.get(event) ?? [];
     // first match goes
     // match against either the raw (for normal remove) or the wrapped (on once() remove with a wrapped listener)
     const idx = containers.findIndex((x) => x.listener === listener);
@@ -476,7 +515,7 @@ export class EventEmitter<
     }
     //prune if empty
     if (containers.length === 0) {
-      this._shared.listeners.delete(event);
+      this._listeners.delete(event);
     }
     return this;
   }

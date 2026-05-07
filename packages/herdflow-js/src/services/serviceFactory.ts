@@ -1,30 +1,26 @@
-import { ComposableService_imp } from './internal/composableService_imp.js';
-import type { ComposableService } from './types/composableService.js';
-import type { DescState, ServiceConstructionParams, ServiceDescriptor } from './types/types.js';
+import type { EMPTY } from '../core/types.js';
+import { Service_imp } from './internal/service_imp.js';
+import type { Service, ServiceParams } from './service.js';
+import type { ServiceDescriptor } from './types/types.js';
 
-/**
- * Creates a service without extending — the compositional alternative to `extends Service<D>`.
- *
- * Returns a `ComposableService` whose lifecycle callbacks (`onInit`, `onStart`, etc.)
- * can be assigned directly as properties after construction.
- *
- * @example
- * const counter = createService<ICounter>('counter', { value: 0 });
- *
- * counter.onInit  = () => { console.log('init'); };
- * counter.onStart = () => { console.log('start'); };
- *
- * counter.actions.setHandler('increment', () => {
- *   counter.state.update(s => { s.value += 1; });
- * });
- *
- * const app = new Module({ counter });
- * await app.start();
- */
-export function createService<Descriptor extends ServiceDescriptor = ServiceDescriptor>(
-  name: string,
-  initialState: DescState<Descriptor>,
-  params?: ServiceConstructionParams,
-): ComposableService<Descriptor> {
-  return new ComposableService_imp<Descriptor>(name, initialState, params);
+//-------------------------------------------------------
+
+// no state
+export function createService(state?: undefined, options?: ServiceParams): Service<EMPTY>;
+
+// infer S from state
+export function createService<S>(state: S, options?: ServiceParams): Service<{ state: S }>;
+
+// explicit ServiceDescriptor
+export function createService<D extends ServiceDescriptor>(
+  state: D['state'],
+  options?: ServiceParams,
+): Service<D>;
+
+//implementation:
+
+export function createService(...args: unknown[]): Service<any> {
+  const state = args[0];
+  const options = args[1] as ServiceParams | undefined;
+  return new Service_imp(state, options);
 }

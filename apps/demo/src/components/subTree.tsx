@@ -1,11 +1,12 @@
+import type { Service } from '@baby-yak/herdflow-js';
 import { createModuleContext, useReactiveState } from '@baby-yak/herdflow-react';
 import classNames from 'classnames';
 import { CounterService, type ICounter } from '../services/courerService';
-import styles from './subTree.module.css';
 import ModuleView from './moduleView';
+import styles from './subTree.module.css';
 
 type M = {
-  counter: ICounter;
+  counter: Service<ICounter>;
 };
 
 const TAG = 'subTree';
@@ -50,6 +51,6 @@ type Inner2Props = {};
 function Inner2({}: Inner2Props) {
   const module = useModule();
   const services = module.services;
-  const state = useReactiveState(services.counter, (s) => s.count);
+  const state = useReactiveState(services.counter.state, (s) => s.count);
   return <div className={classNames(styles.Inner)}>inner count = {state}</div>;
 }

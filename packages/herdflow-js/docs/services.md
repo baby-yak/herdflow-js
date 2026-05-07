@@ -43,7 +43,7 @@ import { Service } from '@baby-yak/herdflow-js';
 
 class CounterService extends Service<ICounter> {
   constructor() {
-    super('counter', { count: 0 });
+    super({ count: 0 }, { name: 'counter' });
 
     // implement service actions (choose one option):
 
@@ -87,11 +87,43 @@ class CounterService extends Service<ICounter> {
 
 Use `createService()` to build a service without a class. Assign lifecycle callbacks as properties and register action handlers imperatively.
 
+### `createService` — call signatures
+
+```ts
+// no state — returns Service<EMPTY>
+createService()
+createService({ name: 'myService' })
+
+// infer state shape from initial value — returns Service<{ state: S }>
+createService({ count: 0 })
+createService({ count: 0 }, { name: 'counter' })
+
+// explicit descriptor — enforces full shape — returns Service<ICounter>
+createService<ICounter>({ count: 0, step: 1 })
+createService<ICounter>({ count: 0, step: 1 }, { name: 'counter' })
+```
+
+### `createRawService` — custom state provider
+
+For advanced use cases where you want to plug in a custom state implementation instead of the default `ReactiveState`:
+
+```ts
+// infer descriptor from provider — returns RawService<{ state: InferState<SP> }, SP>
+createRawService(myProvider)
+createRawService(myProvider, { name: 'myService' })
+
+// explicit descriptor — enforces full shape
+createRawService<IServer, MyProvider>(myProvider)
+createRawService<IServer, MyProvider>(myProvider, { name: 'server' })
+```
+
+---
+
 ```ts
 import { createService } from '@baby-yak/herdflow-js';
 
 // create the service
-const counter = createService<ICounter>('counter', { count: 0 });
+const counter = createService<ICounter>({ count: 0 }, { name: 'counter' });
 
 // attach life cycle callbacks if needed
 counter.onInit = () => {
@@ -257,7 +289,7 @@ class ServerService extends Service<IServer> {
 
 ```ts
 class ServerService extends Service<IServer> {
-  private db!: ServiceClient<IDatabase>; // set in onServiceStart
+  private db!: ServiceToClient<Service<IDatabase>>; // set in onServiceStart
 
   onServiceStart() {
     this.db = this.getModule<AppModule>().services.db;

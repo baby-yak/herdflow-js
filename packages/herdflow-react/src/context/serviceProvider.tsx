@@ -1,17 +1,16 @@
 import {
   createModule,
   type Module,
-  type ModuleConstructionParams,
-  type Service,
-  type ServiceClient,
-  type ServiceDescriptor,
+  type ModuleParams,
+  type RawService,
+  type ServiceToClient,
 } from '@baby-yak/herdflow-js';
-import { createContext, useContext, useEffect, useRef } from 'react';
+import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react';
 
-export type ServiceProviderProps<D extends ServiceDescriptor> = {
-  children?: React.ReactNode;
+export type ServiceProviderProps<S extends RawService<any, any>> = {
+  children?: ReactNode;
   /** Factory called once on mount to create the service instance. */
-  createService: () => Service<D>;
+  createService: () => S;
 };
 
 /**
@@ -24,7 +23,7 @@ export type ServiceProviderProps<D extends ServiceDescriptor> = {
  * @param params optional module construction params (e.g. `verbose`)
  *
  * @example
- * const { ServiceProvider, useService } = createServiceContext<ICounter>();
+ * const { ServiceProvider, useService } = createServiceContext<CounterService>();
  *
  * // provide:
  * <ServiceProvider createService={() => new CounterService()}>
@@ -35,22 +34,19 @@ export type ServiceProviderProps<D extends ServiceDescriptor> = {
  * const counter = useService();
  * counter.actions.increment();
  */
-export function createServiceContext<D extends ServiceDescriptor>(
-  params?: ModuleConstructionParams,
+export function createServiceContext<S extends RawService<any, any>>(
+  params?: ModuleParams,
 ) {
-  const context = createContext<ServiceClient<D> | null>(null);
+  const context = createContext<ServiceToClient<S> | null>(null);
 
-  //provider component
-  const ServiceProvider = ({ createService, children }: ServiceProviderProps<D>) => {
-    const moduleRef = useRef<Module<{ theService: Service<D> }>>();
+  const ServiceProvider = ({ createService, children }: ServiceProviderProps<S>) => {
+    const moduleRef = useRef<Module<{ theService: S }>>();
 
     if (moduleRef.current == null) {
-      // lazy create once
       const service = createService();
       moduleRef.current = createModule({ theService: service }, params);
     }
 
-    //start - stop
     useEffect(() => {
       moduleRef.current?.start();
       return () => {
@@ -58,15 +54,15 @@ export function createServiceContext<D extends ServiceDescriptor>(
       };
     }, []);
 
-    //the provider
     return (
-      <context.Provider value={moduleRef.current.services.theService}>{children}</context.Provider>
+      <context.Provider value={moduleRef.current.services.theService}>
+        {children}
+      </context.Provider>
     );
   };
 
-  const useService = (): ServiceClient<D> => {
-    const res = useContext(context) as ServiceClient<D> | undefined;
-
+  const useService = (): ServiceToClient<S> => {
+    const res = useContext(context);
     if (res == null) {
       throw new Error(
         'useService was used without a matching Provider.\nDid you forget to use the <ServiceProvider> component in the tree?',
@@ -75,8 +71,5 @@ export function createServiceContext<D extends ServiceDescriptor>(
     return res;
   };
 
-  return {
-    ServiceProvider,
-    useService,
-  };
+  return { ServiceProvider, useService };
 }
