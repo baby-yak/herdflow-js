@@ -26,7 +26,7 @@ export class CounterService extends Service<ICounter> {
   timer: number | undefined;
 
   constructor() {
-    super('counter', { count: 0, step: 1, running: false });
+    super({ count: 0, step: 1, running: false }, { name: 'counter' });
     this.actions.setHandler(this);
   }
   async onServiceInit() {

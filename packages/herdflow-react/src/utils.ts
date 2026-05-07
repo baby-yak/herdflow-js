@@ -3,13 +3,14 @@ import {
   type ActionMap,
   type EventClient,
   type EventMap,
-  type ReactiveStateClient,
+  type RawStateClient,
+  type RawStateProvider,
   type ServiceClient,
-  isServiceClient,
+  isServiceClient
 } from '@baby-yak/herdflow-js';
 
 export function extractActions<A extends ActionMap>(
-  target: ActionClient<A> | ServiceClient<{ actions: A }>,
+  target: ActionClient<A> | ServiceClient<{ actions: A }, any>,
 ): ActionClient<A> {
   if (isServiceClient(target)) {
     return target.actions as ActionClient<A>;
@@ -17,7 +18,7 @@ export function extractActions<A extends ActionMap>(
   return target;
 }
 export function extractEvents<E extends EventMap>(
-  target: EventClient<E> | ServiceClient<{ events: E }>,
+  target: EventClient<E> | ServiceClient<{ events: E }, any>,
 ): EventClient<E> {
   if (isServiceClient(target)) {
     return target.events as EventClient<E>;
@@ -25,8 +26,10 @@ export function extractEvents<E extends EventMap>(
   return target;
 }
 export function extractState<S>(
-  target: ReactiveStateClient<S> | ServiceClient<ReactiveStateClient<S>, { state: S }>,
-): ReactiveStateClient<S> {
+  target:
+    | RawStateClient<S>
+    | ServiceClient<{ state: S }, RawStateProvider<S>>,
+): RawStateClient<S> {
   if (isServiceClient(target)) {
     return target.state;
   }

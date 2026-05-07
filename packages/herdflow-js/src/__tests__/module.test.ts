@@ -18,7 +18,7 @@ type ILogger = {
 
 class CounterService extends Service<ICounter> {
   constructor() {
-    super('counter', { count: 0 });
+    super({ count: 0 }, { name: 'counter' });
     this.actions.setHandler(this);
   }
   increment() {
@@ -97,7 +97,7 @@ describe('Module', () => {
 
       class OrderedService extends Service<ICounter> {
         constructor() {
-          super('ordered', { count: 0 });
+          super({ count: 0 }, { name: 'ordered' });
         }
         onServiceInit() {
           calls.push('init');
@@ -122,7 +122,7 @@ describe('Module', () => {
 
       class PhaseService extends Service<ICounter> {
         constructor(private id: string) {
-          super(id, { count: 0 });
+          super({ count: 0 }, { name: id });
         }
         onServiceInit() {
           calls.push(`${this.id}:init`);
@@ -147,7 +147,7 @@ describe('Module', () => {
 
       class AsyncService extends Service<ICounter> {
         constructor() {
-          super('async', { count: 0 });
+          super({ count: 0 }, { name: 'async' });
         }
         async onServiceInit() {
           await Promise.resolve();
@@ -176,7 +176,7 @@ describe('Module', () => {
 
       class StopService extends Service<ICounter> {
         constructor() {
-          super('stop', { count: 0 });
+          super({ count: 0 }, { name: 'stop' });
         }
         onServiceBeforeStop() {
           calls.push('beforeStop');
@@ -200,7 +200,7 @@ describe('Module', () => {
 
       class StopPhaseService extends Service<ICounter> {
         constructor(private id: string) {
-          super(id, { count: 0 });
+          super({ count: 0 }, { name: id });
         }
         onServiceBeforeStop() {
           calls.push(`${this.id}:beforeStop`);
@@ -295,7 +295,7 @@ describe('Module', () => {
 
       class TrackedService extends Service<ICounter> {
         constructor() {
-          super('tracked', { count: 0 });
+          super({ count: 0 }, { name: 'tracked' });
         }
         onServiceAfterStart() {
           calls.push('afterStart');
@@ -326,7 +326,7 @@ describe('Module', () => {
 
       class BrokenService extends Service<ICounter> {
         constructor() {
-          super('broken', { count: 0 });
+          super({ count: 0 }, { name: 'broken' });
         }
         onServiceInit() {
           throw new Error('boom');
@@ -351,7 +351,7 @@ describe('Module', () => {
 
       class BrokenService extends Service<ICounter> {
         constructor() {
-          super('broken', { count: 0 });
+          super({ count: 0 }, { name: 'broken' });
         }
         onServiceInit() {
           throw new Error('boom');
@@ -410,7 +410,7 @@ describe('Module', () => {
     it('waitForStart() rejects if a service throws during start', async () => {
       class BrokenService extends Service<ICounter> {
         constructor() {
-          super('broken', { count: 0 });
+          super({ count: 0 }, { name: 'broken' });
         }
         onServiceInit() {
           throw new Error('boom');
@@ -480,7 +480,7 @@ describe('Module', () => {
 
       class TrackedService extends Service<ICounter> {
         constructor() {
-          super('tracked', { count: 0 });
+          super({ count: 0 }, { name: 'tracked' });
         }
         onServiceInit() {
           calls.push('init');
@@ -499,7 +499,7 @@ describe('Module', () => {
 
       class TrackedService extends Service<ICounter> {
         constructor() {
-          super('tracked', { count: 0 });
+          super({ count: 0 }, { name: 'tracked' });
         }
         onServiceStop() {
           calls.push('stop');
@@ -520,7 +520,7 @@ describe('Module', () => {
 
       class SlowService extends Service<ICounter> {
         constructor() {
-          super('slow', { count: 0 });
+          super({ count: 0 }, { name: 'slow' });
         }
         async onServiceInit() {
           await new Promise<void>((resolve) => setTimeout(resolve, 10));
@@ -551,7 +551,7 @@ describe('Module', () => {
 
       class SimpleService extends Service<ICounter> {
         constructor() {
-          super('simple', { count: 0 });
+          super({ count: 0 }, { name: 'simple' });
         }
       }
 
@@ -568,7 +568,7 @@ describe('Module', () => {
 
       class SimpleService extends Service<ICounter> {
         constructor() {
-          super('simple', { count: 0 });
+          super({ count: 0 }, { name: 'simple' });
         }
       }
 

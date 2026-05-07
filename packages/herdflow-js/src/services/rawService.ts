@@ -10,6 +10,7 @@ import type { DescActions, DescEvents, DescState, ServiceDescriptor } from './ty
 
 /** Advanced construction options passed to the underlying state, events, and actions subsystems. */
 export type RawServiceParams = {
+  name?: string;
   events?: EventEmitterParams;
   actions?: ActionExecuterParams;
 };
@@ -38,8 +39,8 @@ export abstract class RawService<
   /** Returns a read-only `ServiceClient` exposing state, events, and actions to external consumers. */
   readonly client: ServiceClient<D, SProvider>;
 
-  constructor(name: string, stateProvider: SProvider, params?: RawServiceParams) {
-    this.name = name;
+  constructor(stateProvider: SProvider, params?: RawServiceParams) {
+    this.name = params?.name ?? 'untitled';
     this.state = stateProvider;
     this.events = new EventEmitter<DescEvents<D>>(params?.events);
     this.actions = new ActionExecuter<DescActions<D>>(params?.actions);

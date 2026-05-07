@@ -14,8 +14,8 @@ export abstract class Service<D extends ServiceDescriptor> extends RawService<
   D,
   ReactiveState<D['state']>
 > {
-  constructor(name: string, initialState: D['state'], params?: ServiceParams) {
+  constructor(initialState: D['state'], params?: ServiceParams) {
     const provider = new ReactiveState<D['state']>(initialState, params?.state);
-    super(name, provider, params);
+    super(provider, params);
   }
 }

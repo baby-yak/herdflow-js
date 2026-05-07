@@ -1,6 +1,15 @@
-import type { ReactiveState, ReactiveStateClient, StateSelectFn } from '@baby-yak/herdflow-js';
-import { type DependencyList, useCallback, useSyncExternalStore } from 'react';
-import { extractState } from '../utils.js';
+import {
+  isServiceClient,
+  type ReactiveState,
+  type ReactiveStateClient,
+  type ServiceClient,
+  type StateSelectFn
+} from '@baby-yak/herdflow-js';
+import {
+  type DependencyList,
+  useCallback,
+  useSyncExternalStore,
+} from 'react';
 
 //-------------------------------------------------------
 // overload 1: whole state
@@ -11,7 +20,12 @@ import { extractState } from '../utils.js';
  * @param target a service client with state or a reactive state client
  * @param deps optional DependencyList
  */
-export function useReactiveState<S>(target: ReactiveStateClient<S>, deps?: DependencyList): S;
+export function useReactiveState<S>(
+  target:
+    | ReactiveStateClient<S>
+    | ServiceClient<{ state: S }, ReactiveState<S>>,
+  deps?: DependencyList,
+): S;
 
 //-------------------------------------------------------
 // overload 2: with select function
@@ -25,7 +39,9 @@ export function useReactiveState<S>(target: ReactiveStateClient<S>, deps?: Depen
  * @param deps optional DependencyList
  */
 export function useReactiveState<S, U = S>(
-  target: ReactiveState<S>,
+  target:
+    | ReactiveStateClient<S>
+    | ServiceClient<{ state: S }, ReactiveState<S>>,
   selector: StateSelectFn<S, U>,
   deps?: DependencyList,
 ): U;
@@ -35,7 +51,9 @@ export function useReactiveState<S, U = S>(
 //-------------------------------------------------------
 
 export function useReactiveState<S, U = S>(
-  a: ReactiveStateClient<S>,
+  a:
+    | ReactiveStateClient<S>
+    | ServiceClient<{ state: S }, ReactiveState<S>>,
   b?: StateSelectFn<S, U> | DependencyList,
   c?: DependencyList,
 ) {
@@ -64,7 +82,9 @@ export function useReactiveState<S, U = S>(
 //-------------------------------------------------------
 
 function useReactiveState_imp<S, U = S>(
-  target: ReactiveStateClient<S>,
+  target:
+    | ReactiveStateClient<S>
+    | ServiceClient<{ state: S }, ReactiveState<S>>,
   selector: StateSelectFn<S, U> | undefined,
   deps: DependencyList,
 ) {
@@ -100,12 +120,21 @@ function useReactiveState_imp<S, U = S>(
  * 2. if selector function exists - return selected, otherwise - return as is
  */
 function getStateClient<S, U = S>(
-  target: ReactiveStateClient<S>,
+  target:
+    | ReactiveStateClient<S>
+    | ServiceClient<{ state: S }, ReactiveState<S>>,
   selector: StateSelectFn<S, U> | undefined,
 ): ReactiveStateClient<U | S> {
-  const state = extractState(target);
-  if (selector) {
-    return state.select(selector);
+  let stateClient: ReactiveStateClient<S>;
+
+  if (isServiceClient(target)) {
+    stateClient = target.state;
+  } else {
+    stateClient = target;
   }
-  return state;
+
+  if (selector) {
+    return stateClient.select(selector);
+  }
+  return stateClient;
 }

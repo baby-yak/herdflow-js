@@ -43,14 +43,16 @@ export class Module_Imp<M extends ModuleDescriptor> implements Module<M> {
   readonly state: ReactiveStateClient<ModuleState>;
   readonly events: EventClient<ModuleEvents>;
 
-  constructor(name: string, services: M, params?: ModuleParams) {
+  constructor(services: M, params?: ModuleParams) {
     this.params = {
       ...{
+        name: 'untitled',
         verbose: false,
       },
       ...params,
     };
-    this.name = name;
+
+    this.name = params?.name ?? 'untitled';
 
     this._debugLogger = createDebugLogger(this.params.verbose);
 

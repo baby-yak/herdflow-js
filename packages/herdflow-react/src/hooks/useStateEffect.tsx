@@ -1,11 +1,12 @@
-import type {
-  ReactiveStateClient,
-  ServiceClient,
-  StateListener,
-  StateSelectFn,
+import {
+  isServiceClient,
+  type ReactiveState,
+  type ReactiveStateClient,
+  type ServiceClient,
+  type StateListener,
+  type StateSelectFn,
 } from '@baby-yak/herdflow-js';
 import { useEffect, type DependencyList } from 'react';
-import { extractState } from '../utils.js';
 
 //-------------------------------------------------------
 // overload 1: whole state
@@ -20,7 +21,9 @@ import { extractState } from '../utils.js';
  * @param deps controls when the subscription is re-created — include any values the callback closes over
  */
 export function useStateEffect<S>(
-  target: ReactiveStateClient<S> | ServiceClient<ReactiveStateClient<S>, { state: S }>,
+  target:
+    | ReactiveStateClient<S>
+    | ServiceClient<{ state: S }, ReactiveState<S>>,
   callback: StateListener<S>,
   deps?: DependencyList,
 ): void;
@@ -39,7 +42,9 @@ export function useStateEffect<S>(
  * @param deps controls when the subscription is re-created — include any values the callback closes over
  */
 export function useStateEffect<S, U = S>(
-  target: ReactiveStateClient<S> | ServiceClient<ReactiveStateClient<S>, { state: S }>,
+  target:
+    | ReactiveStateClient<S>
+    | ServiceClient<{ state: S }, ReactiveState<S>>,
   selector: StateSelectFn<S, U>,
   callback: StateListener<U>,
   deps?: DependencyList,
@@ -50,7 +55,9 @@ export function useStateEffect<S, U = S>(
 //-------------------------------------------------------
 
 export function useStateEffect<S, U = S>(
-  a: ReactiveStateClient<S> | ServiceClient<ReactiveStateClient<S>, { state: S }>,
+  a:
+    | ReactiveStateClient<S>
+    | ServiceClient<{ state: S }, ReactiveState<S>>,
   b: StateListener<S> | StateSelectFn<S, U>,
   c?: DependencyList | StateListener<U>,
   d?: DependencyList,
@@ -58,7 +65,8 @@ export function useStateEffect<S, U = S>(
   // router function to match overloaded args
   const target = a;
   let selector: StateSelectFn<S, U> | undefined = undefined;
-  let callback: StateListener<S> | StateListener<U> | undefined = undefined;
+  let callback: StateListener<S> | StateListener<U> | undefined =
+    undefined;
   let deps: DependencyList | undefined = undefined;
 
   if (c == null || Array.isArray(c)) {
@@ -77,15 +85,25 @@ export function useStateEffect<S, U = S>(
 //-------------------------------------------------------
 
 function useStateEffect_imp<S, U = S>(
-  target: ReactiveStateClient<S> | ServiceClient<ReactiveStateClient<S>, { state: S }>,
+  target:
+    | ReactiveStateClient<S>
+    | ServiceClient<{ state: S }, ReactiveState<S>>,
   selector: StateSelectFn<S, U> | undefined,
   callback: StateListener<any>,
   deps?: DependencyList,
 ) {
   useEffect(() => {
-    if (selector) {
-      return extractState(target).select(selector).subscribe(callback);
+    let stateClient: ReactiveStateClient<S>;
+
+    if (isServiceClient(target)) {
+      stateClient = target.state;
+    } else {
+      stateClient = target;
     }
-    return extractState(target).subscribe(callback);
+
+    if (selector) {
+      return stateClient.select(selector).subscribe(callback);
+    }
+    return stateClient.subscribe(callback);
   }, deps ?? []);
 }

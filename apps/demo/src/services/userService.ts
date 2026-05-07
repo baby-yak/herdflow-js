@@ -23,7 +23,7 @@ export type IUsers = {
 
 export class UsersService extends Service<IUsers> {
   constructor() {
-    super('users', { users: [] });
+    super({ users: [] }, { name: 'users' });
     this.actions.setHandler(this);
   }
 

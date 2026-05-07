@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createModule } from '../modules/moduleFactory.js';
 import { Service } from '../services/service.js';
+import { createService } from '../services/serviceFactory.js';
 
 // ---------------------------------------------------------------------------
 // Shared test descriptors
@@ -18,7 +19,7 @@ type IStateless = {
 
 class CounterService extends Service<ICounter> {
   constructor() {
-    super('counter', { count: 0 });
+    super({ count: 0 }, { name: 'counter' });
     this.actions.setHandler(this);
   }
 
@@ -39,7 +40,7 @@ class CounterService extends Service<ICounter> {
 
 class StatelessService extends Service<IStateless> {
   constructor() {
-    super('stateless', undefined);
+    super(undefined);
     this.actions.setHandler('ping', () => 'pong');
   }
 }
@@ -158,40 +159,40 @@ describe('Service', () => {
 
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
-// new Service
+// createService
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 
-describe('new Service()', () => {
+describe('createService()', () => {
   //-------------------------------------------------------
   //-- construction
   //-------------------------------------------------------
 
   describe('construction', () => {
     it('stores the name', () => {
-      const s = new Service<ICounter>('counter', { count: 0 });
-      expect(s.name).toBe('counter');
+      const s = createService<ICounter>({ count: 0 }, { name: 'Counter' });
+      expect(s.name).toBe('Counter');
     });
 
     it('initializes state with the given value', () => {
-      const s = new Service<ICounter>('counter', { count: 7 });
+      const s = createService<ICounter>({ count: 7 }, { name: 'Counter' });
       expect(s.state.get().count).toBe(7);
     });
 
     it('supports undefined state when no state in descriptor', () => {
-      const s = new Service<IStateless>('stateless', undefined);
+      const s = createService<IStateless>(undefined);
       expect(s.state.get()).toBeUndefined();
     });
-
+ 
     it('client returns a client with state, events, and actions', () => {
-      const client = new Service<ICounter>('counter', { count: 0 }).client;
+      const client = createService<ICounter>({ count: 0 }, { name: 'Counter' }).client;
       expect(client.state).toBeDefined();
       expect(client.events).toBeDefined();
       expect(client.actions).toBeDefined();
     });
 
     it('actions and events work the same as OOP style', () => {
-      const s = new Service<ICounter>('counter', { count: 0 });
+      const s = createService<ICounter>({ count: 0 }, { name: 'Counter' });
       const listener = vi.fn();
       s.actions.setHandler('increment', () => {
         s.state.update((d) => {
@@ -215,7 +216,7 @@ describe('new Service()', () => {
 
   describe('lifecycle callbacks', () => {
     it('onInit is called during module.start()', async () => {
-      const s = new Service<ICounter>('counter', { count: 0 });
+      const s = createService<ICounter>({ count: 0 }, { name: 'Counter' });
       const onInit = vi.fn();
       s.onServiceInit = onInit;
       const app = createModule({ s });
@@ -225,7 +226,7 @@ describe('new Service()', () => {
     });
 
     it('onStart is called during module.start()', async () => {
-      const s = new Service<ICounter>('counter', { count: 0 });
+      const s = createService<ICounter>({ count: 0 }, { name: 'Counter' });
       const onStart = vi.fn();
       s.onServiceStart = onStart;
       const app = createModule({ s });
@@ -235,7 +236,7 @@ describe('new Service()', () => {
     });
 
     it('onAfterStart is called during module.start()', async () => {
-      const s = new Service<ICounter>('counter', { count: 0 });
+      const s = createService<ICounter>({ count: 0 }, { name: 'Counter' });
       const onAfterStart = vi.fn();
       s.onServiceAfterStart = onAfterStart;
       const app = createModule({ s });
@@ -245,7 +246,7 @@ describe('new Service()', () => {
     });
 
     it('onBeforeStop is called during module.stop()', async () => {
-      const s = new Service<ICounter>('counter', { count: 0 });
+      const s = createService<ICounter>({ count: 0 }, { name: 'Counter' });
       const onBeforeStop = vi.fn();
       s.onServiceBeforeStop = onBeforeStop;
       const app = createModule({ s });
@@ -257,7 +258,7 @@ describe('new Service()', () => {
     });
 
     it('onStop is called during module.stop()', async () => {
-      const s = new Service<ICounter>('counter', { count: 0 });
+      const s = createService<ICounter>({ count: 0 }, { name: 'Counter' });
       const onStop = vi.fn();
       s.onServiceStop = onStop;
       const app = createModule({ s });
@@ -270,7 +271,7 @@ describe('new Service()', () => {
 
     it('all five callbacks fire in correct phase order', async () => {
       const calls: string[] = [];
-      const s = new Service<ICounter>('counter', { count: 0 });
+      const s = createService<ICounter>({ count: 0 }, { name: 'Counter' });
       s.onServiceInit = () => {
         calls.push('init');
       };
@@ -296,7 +297,7 @@ describe('new Service()', () => {
 
     it('async callbacks are awaited before the next phase', async () => {
       const calls: string[] = [];
-      const s = new Service<ICounter>('counter', { count: 0 });
+      const s = createService<ICounter>({ count: 0 }, { name: 'Counter' });
       s.onServiceInit = async () => {
         await Promise.resolve();
         calls.push('init');
@@ -311,7 +312,7 @@ describe('new Service()', () => {
     });
 
     it('unassigned callbacks are no-ops — no throw', async () => {
-      const s = new Service<ICounter>('counter', { count: 0 });
+      const s = createService<ICounter>({ count: 0 }, { name: 'Counter' });
       const app = createModule({ s });
       app.start();
       await expect(app.waitForStart()).resolves.toBeUndefined();
@@ -326,7 +327,7 @@ describe('new Service()', () => {
     it('throws before onServiceStart', () => {
       class S extends Service<ICounter> {
         constructor() {
-          super('s', { count: 0 });
+          super({ count: 0 }, { name: 's' });
         }
         override onServiceInit() {
           expect(() => this.getModule()).toThrow('onServiceStart');
@@ -342,7 +343,7 @@ describe('new Service()', () => {
       let mod: unknown;
       class S extends Service<ICounter> {
         constructor() {
-          super('s', { count: 0 });
+          super({ count: 0 }, { name: 'counter' });
         }
         override onServiceStart() {
           mod = this.getModule();
@@ -360,12 +361,12 @@ describe('new Service()', () => {
       let siblingState: unknown;
       class A extends Service<ICounter> {
         constructor() {
-          super('a', { count: 42 });
+          super({ count: 42 }, { name: 'counter' });
         }
       }
       class B extends Service<ICounter> {
         constructor() {
-          super('b', { count: 0 });
+          super({ count: 0 }, { name: 'counter' });
         }
         override onServiceStart() {
           siblingState = this.getModule<AppModule>().services.a.state.get();
@@ -381,7 +382,7 @@ describe('new Service()', () => {
       let mod: unknown;
       class S extends Service<ICounter> {
         constructor() {
-          super('s', { count: 0 });
+          super({ count: 0 });
         }
         override onServiceStart() {
           mod = this.getModule();
@@ -405,7 +406,7 @@ describe('new Service()', () => {
 
       class OopCounter extends Service<ICounter> {
         constructor() {
-          super('oop', { count: 0 });
+          super({ count: 0 }, { name: 'oop' });
         }
         onServiceInit() {
           calls.push('oop:init');
@@ -415,7 +416,7 @@ describe('new Service()', () => {
         }
       }
 
-      const composed = new Service<ICounter>('composed', { count: 0 });
+      const composed = createService<ICounter>({ count: 0 }, { name: 'Counter' });
       composed.onServiceInit = () => {
         calls.push('composed:init');
       };

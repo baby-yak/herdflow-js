@@ -57,6 +57,7 @@ export type ExtractDescriptor<S extends RawService<any, any>> =
 
 /** Construction options for a `Module`. */
 export type ModuleParams = {
+  name?: string;
   /** Log each lifecycle phase transition for every service. Default: `false`. */
   verbose?: boolean;
 };
