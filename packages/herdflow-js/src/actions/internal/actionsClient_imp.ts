@@ -1,5 +1,5 @@
-import type { ActionClient } from '../types/actionClient.js';
-import type { ActionMap, Invoker } from '../types/types.js';
+import type { ActionClient } from '../actionClient.js';
+import type { ActionMap, Invoker } from '../types.js';
 
 export class ActionsClient_imp<T_Map extends ActionMap = ActionMap> implements ActionClient<T_Map> {
   readonly invoke: Invoker<T_Map>;

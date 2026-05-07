@@ -1,7 +1,6 @@
 import type { UnsubscribeFn } from '../../core/types.js';
-import type { ReactiveStateClient } from '../types/reactiveStateClient.js';
-
-import type { StateListener, StateSelectFn } from '../types/types.js';
+import type { ReactiveStateClient } from '../reactiveStateClient.js';
+import type { StateListener, StateSelectFn } from '../types.js';
 
 export class StateSelector_imp<S, U> implements ReactiveStateClient<U> {
   private source: ReactiveStateClient<S>;

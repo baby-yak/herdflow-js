@@ -7,15 +7,15 @@ import { _SERVICE_LIFECYCLE_ } from '../../services/internal/types.js';
 import type { Service } from '../../services/service.js';
 import { createDebugLogger } from '../../utils/debugLogger.js';
 import { AsyncMutex } from '../../utils/mutex.js';
-import type { Module } from '../types/module.js';
-import type { ModuleClient } from '../types/moduleClient.js';
+import type { Module } from '../module.js';
+import type { ModuleClient } from '../moduleClient.js';
 import type {
   ModuleDescriptor,
   ModuleEvents,
   ModuleParams,
   ModuleServiceClients,
   ModuleState,
-} from '../types/types.js';
+} from '../types.js';
 import { ModuleClient_imp } from './moduleClient_imp.js';
 
 export class Module_Imp<M extends ModuleDescriptor> implements Module<M> {

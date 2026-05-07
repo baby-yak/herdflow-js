@@ -4,7 +4,7 @@ import type {
   EventMap,
   EventNames,
   EventParams,
-} from './index.js';
+} from './types.js';
 
 export interface EventClient<T_EventMap extends EventMap = EventMap> {
   /**

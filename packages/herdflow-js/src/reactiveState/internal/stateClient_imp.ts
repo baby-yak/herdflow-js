@@ -1,5 +1,5 @@
-import type { ReactiveStateClient } from '../types/reactiveStateClient.js';
-import type { StateListener, StateSelectFn } from '../types/types.js';
+import type { ReactiveStateClient } from '../reactiveStateClient.js';
+import type { StateListener, StateSelectFn } from '../types.js';
 
 export class StateClient_imp<S> implements ReactiveStateClient<S> {
   private source: ReactiveStateClient<S>;

@@ -1,5 +1,11 @@
-import type { EventClient, EventGroupContext } from '../types/index.js';
-import type { EventListener, EventMap, EventNames, EventParams } from '../types/types.js';
+import type { EventClient } from '../eventClient.js';
+import type {
+  EventGroupContext,
+  EventListener,
+  EventMap,
+  EventNames,
+  EventParams,
+} from '../types.js';
 import type { GroupToken } from './types.js';
 
 let GROUP_COUNT = 0;

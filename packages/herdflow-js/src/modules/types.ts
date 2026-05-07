@@ -1,5 +1,5 @@
-import type { ServiceClient } from '../../services/index.js';
-import type { RawService } from '../../services/rawService.js';
+import type { ServiceClient } from '../services/index.js';
+import type { RawService } from '../services/rawService.js';
 
 /** Reactive state exposed on every module. */
 export type ModuleState = {

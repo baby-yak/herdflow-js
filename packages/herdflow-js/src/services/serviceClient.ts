@@ -1,6 +1,6 @@
-import type { ActionClient, Invoker } from '../../actions/index.js';
-import type { EventClient } from '../../events/index.js';
-import type { RawStateProvider } from '../../state/rawStateProvider.js';
+import type { ActionClient, Invoker } from '../actions/index.js';
+import type { EventClient } from '../events/index.js';
+import type { RawStateProvider } from '../state/rawStateProvider.js';
 import type { DescActions, DescEvents, DescState, ServiceDescriptor } from './types.js';
 
 /**

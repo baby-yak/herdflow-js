@@ -1,6 +1,6 @@
 import type { RawStateProvider } from '../../state/rawStateProvider.js';
 import { RawService } from '../rawService.js';
-import type { ServiceDescriptor } from '../types/types.js';
+import type { ServiceDescriptor } from '../types.js';
 
 /**
  * just a concrete implementation

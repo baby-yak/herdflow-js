@@ -1,4 +1,4 @@
-import type { ListenersErrorHandlingType } from '../../core/types.js';
+import type { ListenersErrorHandlingType } from '../core/types.js';
 
 /**
  * Callback invoked whenever state changes.

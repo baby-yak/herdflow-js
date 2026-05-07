@@ -1,7 +1,7 @@
 import type { ReactiveStateParams } from '../reactiveState/index.js';
 import { ReactiveState } from '../reactiveState/reactiveState.js';
 import { RawService, type RawServiceParams } from './rawService.js';
-import type { ServiceDescriptor } from './types/types.js';
+import type { ServiceDescriptor } from './types.js';
 
 export type ServiceParams = RawServiceParams & {
   state?: ReactiveStateParams;
