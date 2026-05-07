@@ -1,6 +1,6 @@
 import { enableMapSet, produce, type Draft } from 'immer';
 import type { UnsubscribeFn } from '../core/types.js';
-import type { StateProvider } from '../state/index.js';
+import type { RawStateProvider } from '../state/index.js';
 import { StateClient_imp } from './internal/stateClient_imp.js';
 import { StateSelector_imp } from './internal/stateSelector_imp.js';
 import { isPlainObject } from './internal/utils.js';
@@ -47,9 +47,7 @@ const DEFAULT_OPTIONS: Required<ReactiveStateParams> = {
  * state.update(draft => { draft.count++; });
  * ```
  */
-export class ReactiveState<S> implements StateProvider<
-  ReactiveStateClient<S>
-> {
+export class ReactiveState<S> implements RawStateProvider<S> {
   //instance marker
 
   private _initial: S;
@@ -119,9 +117,7 @@ export class ReactiveState<S> implements StateProvider<
     safeListener(this.get(), undefined);
 
     return () => {
-      this._listeners = this._listeners.filter(
-        (x) => x !== container,
-      );
+      this._listeners = this._listeners.filter((x) => x !== container);
     };
   }
 
@@ -148,9 +144,7 @@ export class ReactiveState<S> implements StateProvider<
         recipe(draft);
       });
     } else {
-      next = isPlainObject(prev)
-        ? { ...prev, ...recipe }
-        : (recipe as S);
+      next = isPlainObject(prev) ? { ...prev, ...recipe } : (recipe as S);
     }
     this.set(next);
   }

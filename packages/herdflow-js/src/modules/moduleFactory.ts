@@ -6,6 +6,11 @@ import type { ModuleParams, ModuleDescriptor } from './types/types.js';
 // two overloads for creating a module - explicit and implicit module descriptor
 //-------------------------------------------------------
 
+type Params<M> = {
+  services: M;
+  options?: ModuleParams;
+};
+
 /**
  * create a module with module descriptor type param. the shape will be enforced
  * @example
@@ -28,9 +33,24 @@ import type { ModuleParams, ModuleDescriptor } from './types/types.js';
  * @param services name->Service
  * @param params optional construction params
  */
-export function createModule<T_Module extends ModuleDescriptor>(
-  services: T_Module,
-  params?: ModuleParams,
-): Module<T_Module> {
-  return new Module_Imp(services, params);
+export function createModule<M extends ModuleDescriptor>(
+  name?: string,
+  params?: Params<M>,
+): Module<M>;
+
+export function createModule<M extends ModuleDescriptor>(params?: Params<M>): Module<M>;
+
+export function createModule<M extends ModuleDescriptor>(...args: unknown[]): Module<M> {
+  let name: string;
+  let params: Params<M>;
+  if (typeof args[0] === 'string') {
+    name = args[0];
+    params = args[1] as Params<M>;
+  } else {
+    name = 'untitled';
+    params = args[0] as Params<M>;
+  }
+
+  const { options, services } = params;
+  return new Module_Imp(name, services, options);
 }

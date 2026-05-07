@@ -1,4 +1,5 @@
 import type { ActionMap } from '../../actions/index.js';
+import type { EMPTY } from '../../core/types.js';
 import type { EventMap } from '../../events/index.js';
 
 /**
@@ -23,23 +24,17 @@ export type ServiceDescriptor = {
 
 export type DefaultServiceDescriptor = {
   state: undefined;
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  events: {};
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  actions: {};
+  events: EMPTY;
+  actions: EMPTY;
 };
 
 // Extract each field from a ServiceDescriptor, with sensible defaults
 export type DescState<SD extends ServiceDescriptor> = SD['state'];
 
-export type DescEvents<SD extends ServiceDescriptor> =
-  SD['events'] extends EventMap
-    ? SD['events']
-    : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-      {};
+export type DescEvents<SD extends ServiceDescriptor> = SD['events'] extends EventMap
+  ? SD['events']
+  : EMPTY;
 
-export type DescActions<SD extends ServiceDescriptor> =
-  SD['actions'] extends ActionMap
-    ? SD['actions']
-    : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-      {};
+export type DescActions<SD extends ServiceDescriptor> = SD['actions'] extends ActionMap
+  ? SD['actions']
+  : EMPTY;

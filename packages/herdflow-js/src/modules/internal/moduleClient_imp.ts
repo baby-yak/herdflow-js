@@ -9,12 +9,14 @@ import type {
   ModuleState,
 } from '../types/types.js';
 
-export class ModuleClient_imp<T_Module extends ModuleDescriptor> implements ModuleClient<T_Module> {
+export class ModuleClient_imp<M extends ModuleDescriptor> implements ModuleClient<M> {
+  readonly name: string;
   readonly state: ReactiveStateClient<ModuleState>;
   readonly events: EventClient<ModuleEvents>;
-  readonly services: ModuleServiceClients<T_Module>;
+  readonly services: ModuleServiceClients<M>;
 
-  constructor(source: Module<T_Module>) {
+  constructor(source: Module<M>) {
+    this.name = source.name;
     this.state = source.state;
     this.events = source.events;
     this.services = source.services;

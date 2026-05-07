@@ -10,12 +10,12 @@ export type ServiceParams = RawServiceParams & {
 /**
  * default service implementation - in memory state with the {@link ReactiveState}  provider.
  */
-export class Service<Descriptor extends ServiceDescriptor> extends RawService<
-  ReactiveState<Descriptor['state']>,
-  Descriptor
+export abstract class Service<D extends ServiceDescriptor> extends RawService<
+  D,
+  ReactiveState<D['state']>
 > {
-  constructor(name: string, initialState: Descriptor['state'], params?: ServiceParams) {
-    const provider = new ReactiveState<Descriptor['state']>(initialState, params?.state);
+  constructor(name: string, initialState: D['state'], params?: ServiceParams) {
+    const provider = new ReactiveState<D['state']>(initialState, params?.state);
     super(name, provider, params);
   }
 }

@@ -1,32 +1,32 @@
 import type { ActionClient, Invoker } from '../../actions/index.js';
 import type { EventClient } from '../../events/index.js';
-import type { StateProvider } from '../../state/index.js';
+import type { RawStateProvider } from '../../state/index.js';
 import type { RawService } from '../rawService.js';
 import type { ServiceClient } from '../types/serviceClient.js';
-import type { DescActions, DescEvents, ServiceDescriptor } from '../types/types.js';
+import type { DescActions, DescEvents, DescState, ServiceDescriptor } from '../types/types.js';
 import { MARKER_SERVICE_CLIENT } from './markers.js';
 
 export class ServiceClient_imp<
-  T_StateClient = unknown,
-  Desc extends ServiceDescriptor = ServiceDescriptor,
-> implements ServiceClient<T_StateClient, Desc> {
+  D extends ServiceDescriptor,
+  SProvider extends RawStateProvider<DescState<D>>,
+> implements ServiceClient<D, SProvider> {
   [MARKER_SERVICE_CLIENT] = true;
   /** Read-only access to the service's name. */
   readonly name: string;
 
   /** Shorthand for invoking actions on this service from within the implementation. */
-  readonly invoke: Invoker<DescActions<Desc>>;
+  readonly invoke: Invoker<DescActions<D>>;
 
   /** Read-only access to the service's reactive state. */
-  readonly state: T_StateClient;
+  readonly state: SProvider['client'];
 
   /** Subscribe to events emitted by the service. */
-  readonly events: EventClient<DescEvents<Desc>>;
+  readonly events: EventClient<DescEvents<D>>;
 
   /** Invoke actions on the service. */
-  readonly actions: ActionClient<DescActions<Desc>>;
+  readonly actions: ActionClient<DescActions<D>>;
 
-  constructor(service: RawService<StateProvider<T_StateClient>, Desc>) {
+  constructor(service: RawService<D, RawStateProvider<DescState<D>>>) {
     this.name = service.name;
     this.invoke = service.invoke;
     this.state = service.state.client;

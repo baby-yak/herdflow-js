@@ -7,6 +7,6 @@ export function isService(x: unknown): x is Service<any> {
   return targetIs(x, MARKER_SERVICE);
 }
 
-export function isServiceClient(x: unknown): x is ServiceClient<any> {
+export function isServiceClient(x: unknown): x is ServiceClient<any, any> {
   return targetIs(x, MARKER_SERVICE_CLIENT);
 }

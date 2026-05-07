@@ -1,3 +1,4 @@
+import type { EMPTY } from '../../core/types.js';
 import type { EventClient } from '../../events/index.js';
 import type { ReactiveStateClient } from '../../reactiveState/index.js';
 import type { ModuleClient } from './moduleClient.js';
@@ -31,13 +32,14 @@ import type { ModuleDescriptor, ModuleEvents, ModuleServiceClients, ModuleState 
  * app.services.server.actions.invoke.connect(8080);
  * app.stop();
  */
-export interface Module<T_Module extends ModuleDescriptor = ModuleDescriptor> {
+export interface Module<M extends ModuleDescriptor = EMPTY> {
+  readonly name: string;
   readonly state: ReactiveStateClient<ModuleState>;
   readonly events: EventClient<ModuleEvents>;
-  readonly services: ModuleServiceClients<T_Module>;
+  readonly services: ModuleServiceClients<M>;
 
   /** Returns a read-only `ModuleClient` safe to share with consumers. Does not expose `start`/`stop`. */
-  readonly client: ModuleClient<T_Module>;
+  readonly client: ModuleClient<M>;
   /** Run the full startup sequence: `init` → `start` → `afterStart`. */
   start(): void;
   /** Run the full shutdown sequence: `beforeStop` → `stop`. */
