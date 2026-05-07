@@ -1,12 +1,10 @@
+import type { ReactiveStateClient } from '../types/reactiveStateClient.js';
 import type { StateListener, StateSelectFn } from '../types/types.js';
-import type { StateClient } from '../types/stateClient.js';
-import { StateClient_base } from './stateClient_base.js';
 
-export class StateClient_imp<S> extends StateClient_base<S> {
-  private source: StateClient<S>;
+export class StateClient_imp<S> implements ReactiveStateClient<S> {
+  private source: ReactiveStateClient<S>;
 
-  constructor(source: StateClient<S>) {
-    super();
+  constructor(source: ReactiveStateClient<S>) {
     this.source = source;
   }
 

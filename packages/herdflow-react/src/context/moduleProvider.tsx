@@ -2,8 +2,8 @@ import {
   createModule,
   type Module,
   type ModuleClient,
-  type ModuleConstructionParams,
   type ModuleDescriptor,
+  type ModuleParams,
 } from '@baby-yak/herdflow-js';
 import { createContext, useContext, useEffect, useRef } from 'react';
 
@@ -39,12 +39,17 @@ export type ModuleProviderProps<M extends ModuleDescriptor> = {
  * const { counter, server } = services;
  * const { isStarted } = state.get();
  */
-export function createModuleContext<M extends ModuleDescriptor>(params?: ModuleConstructionParams) {
+export function createModuleContext<M extends ModuleDescriptor>(
+  params?: ModuleParams,
+) {
   const context = createContext<ModuleClient<any> | null>(null);
 
   //provider component
   const ModuleProvider = (props: ModuleProviderProps<M>) => {
-    const moduleRef = useRef<{ module: Module<M>; moduleClient: ModuleClient<M> }>();
+    const moduleRef = useRef<{
+      module: Module<M>;
+      moduleClient: ModuleClient<M>;
+    }>();
     if (moduleRef.current == null) {
       // lazy create once
       const module = createModule(props.createModule(), params);
@@ -63,7 +68,9 @@ export function createModuleContext<M extends ModuleDescriptor>(params?: ModuleC
 
     //the provider
     return (
-      <context.Provider value={moduleRef.current.moduleClient}>{props.children}</context.Provider>
+      <context.Provider value={moduleRef.current.moduleClient}>
+        {props.children}
+      </context.Provider>
     );
   };
 

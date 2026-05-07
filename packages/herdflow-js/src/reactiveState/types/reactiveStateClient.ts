@@ -1,12 +1,9 @@
-import type { MARKER_STATE_CLIENT } from '../../core/internal/brandSymbols.js';
 import type { UnsubscribeFn } from '../../core/types.js';
-import type { StateSelectFn, StateListener } from './types.js';
+import type { RawStateClient } from '../../state/rawStateClient.js';
+import type { StateListener, StateSelectFn } from './types.js';
 
 /** Read-only view of a reactive state container. */
-export interface StateClient<S> {
-  //instance marker
-  readonly [MARKER_STATE_CLIENT]: true;
-
+export interface ReactiveStateClient<S> extends RawStateClient<S> {
   /** Returns the current state (deeply readonly). */
   get<U = S>(select?: StateSelectFn<S, U>): U;
 
@@ -26,5 +23,5 @@ export interface StateClient<S> {
    * value changes (compared with `Object.is`). Chained selectors are flattened
    * into a single selector for efficiency.
    */
-  select<U>(selector: StateSelectFn<S, U>): StateClient<U>;
+  select<U>(selector: StateSelectFn<S, U>): ReactiveStateClient<U>;
 }

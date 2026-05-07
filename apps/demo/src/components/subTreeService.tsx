@@ -1,4 +1,7 @@
-import { createServiceContext, useReactiveState } from '@baby-yak/herdflow-react';
+import {
+  createServiceContext,
+  useReactiveState,
+} from '@baby-yak/herdflow-react';
 import classNames from 'classnames';
 import { CounterService } from '../services/courerService';
 import styles from './subTree.module.css';
@@ -7,7 +10,8 @@ const TAG = 'subTree';
 type Props = {};
 
 //
-const { ServiceProvider, useService } = createServiceContext({ verbose: true });
+const { ServiceProvider, useService } =
+  createServiceContext<CounterService>({ verbose: true });
 function create() {
   console.log('creating service');
   return new CounterService();
@@ -39,6 +43,10 @@ function Inner1({}: Inner1Props) {
 type Inner2Props = {};
 function Inner2({}: Inner2Props) {
   const counter = useService();
-  const state = useReactiveState(counter, (s) => s.count);
-  return <div className={classNames(styles.Inner)}>inner count = {state}</div>;
+  const state = useReactiveState(counter.state);
+  return (
+    <div className={classNames(styles.Inner)}>
+      inner count = {state.count}
+    </div>
+  );
 }

@@ -250,7 +250,7 @@ Same pattern for a single service:
 export const {
   ServiceProvider, // the <Provider/>
   useService, // the hook for consumers
-} = createServiceContext<ICounter>();
+} = createServiceContext<CounterService>();
 ```
 
 ```tsx

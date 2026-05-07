@@ -17,8 +17,13 @@ import { extractEvents } from '../utils.js';
  * @param listener callback invoked each time the event fires
  * @param deps controls when the subscription is re-created — include any values the listener closes over
  */
-export function useEvent<EVENTS extends EventMap, EVENTNAME extends EventNames<EVENTS>>(
-  target: EventClient<EVENTS> | ServiceClient<{ events: EVENTS }>,
+export function useEvent<
+  EVENTS extends EventMap,
+  EVENTNAME extends EventNames<EVENTS>,
+>(
+  target:
+    | EventClient<EVENTS>
+    | ServiceClient<{ events: EVENTS }, any>,
   event: EVENTNAME,
   listener: EventListener<EVENTS, EVENTNAME>,
   deps?: DependencyList,

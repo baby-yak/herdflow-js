@@ -1,6 +1,6 @@
-import type { ActionMap, ActionsConstructionParams } from '../../actions/index.js';
-import type { EventMap, EventsConstructionParams } from '../../events/index.js';
-import type { StateConstructionParams } from '../../state/index.js';
+import type { ActionMap } from '../../actions/index.js';
+import type { EMPTY } from '../../core/types.js';
+import type { EventMap } from '../../events/index.js';
 
 /**
  * Describes the shape of a service — its state type, event map, and action map.
@@ -22,20 +22,19 @@ export type ServiceDescriptor = {
   actions?: ActionMap;
 };
 
+export type DefaultServiceDescriptor = {
+  state: undefined;
+  events: EMPTY;
+  actions: EMPTY;
+};
+
 // Extract each field from a ServiceDescriptor, with sensible defaults
 export type DescState<SD extends ServiceDescriptor> = SD['state'];
 
 export type DescEvents<SD extends ServiceDescriptor> = SD['events'] extends EventMap
   ? SD['events']
-  : EventMap;
+  : EMPTY;
 
 export type DescActions<SD extends ServiceDescriptor> = SD['actions'] extends ActionMap
   ? SD['actions']
-  : ActionMap;
-
-/** Advanced construction options passed to the underlying state, events, and actions subsystems. */
-export type ServiceConstructionParams = {
-  state?: StateConstructionParams;
-  events?: EventsConstructionParams;
-  actions?: ActionsConstructionParams;
-};
+  : EMPTY;

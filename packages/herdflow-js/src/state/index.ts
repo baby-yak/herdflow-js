@@ -1,3 +1,3 @@
-export * from './reactiveState.js';
-export * from './remoteState.js';
+export * from './rawStateClient.js';
+export * from './rawStateProvider.js';
 export * from './types/index.js';

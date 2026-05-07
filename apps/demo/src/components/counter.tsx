@@ -12,9 +12,9 @@ type Props = {};
 export default function Counter({}: Props) {
   const refLogger = useRef<LoggerRef>(null);
 
-  const count = useReactiveState(services.counter, (s) => s.count);
-  const running = useReactiveState(services.counter, (s) => s.running);
-  const step = useReactiveState(services.counter, (s) => s.step);
+  const count = useReactiveState(services.counter.state, (s) => s.count);
+  const running = useReactiveState(services.counter.state, (s) => s.running);
+  const step = useReactiveState(services.counter.state, (s) => s.step);
 
   //actions
   const increment = services.counter.invoke.increment;
@@ -24,13 +24,13 @@ export default function Counter({}: Props) {
   const start = services.counter.invoke.start;
   const stop = services.counter.invoke.stop;
 
-  useEvent(services.counter, 'incremented', (count) => {
+  useEvent(services.counter.events, 'incremented', (count) => {
     refLogger.current?.log(`incremented: ${count}`);
   });
-  useEvent(services.counter, 'decremented', (count) => {
+  useEvent(services.counter.events, 'decremented', (count) => {
     refLogger.current?.log(`decremented: ${count}`);
   });
-  useEvent(services.counter, 'reset', () => {
+  useEvent(services.counter.events, 'reset', () => {
     refLogger.current?.log(`reset`);
   });
 

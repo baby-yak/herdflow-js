@@ -1,19 +1,25 @@
 import { enableMapSet, produce, type Draft } from 'immer';
 import type { UnsubscribeFn } from '../core/types.js';
-import { ReactiveState_base } from './internal/reactiveState_base.js';
+import type { RawStateProvider } from '../state/index.js';
 import { StateClient_imp } from './internal/stateClient_imp.js';
 import { StateSelector_imp } from './internal/stateSelector_imp.js';
 import { isPlainObject } from './internal/utils.js';
+import type { ReactiveStateClient } from './types/reactiveStateClient.js';
 import {
-  type StateConstructionParams,
   type StateListener,
+  type StateListenersErrorHandlingType,
   type StateSelectFn,
 } from './types/types.js';
-import { type StateClient } from './types/stateClient.js';
 
 //-------------------------------------------------------
 // -- enables immer Map/Set support globally — see README
 enableMapSet();
+
+/** Options passed to the {@link ReactiveState} constructor. */
+export type ReactiveStateParams = {
+  /** how to handle when a listener throws an error — default is `"warn"` */
+  listenersErrorHandling?: StateListenersErrorHandlingType;
+};
 
 //-------------------------------------------------------
 //-- types
@@ -22,7 +28,7 @@ type ListenerContainer<S> = {
   listener: StateListener<S>;
 };
 
-const DEFAULT_OPTIONS: Required<StateConstructionParams> = {
+const DEFAULT_OPTIONS: Required<ReactiveStateParams> = {
   listenersErrorHandling: 'warn',
 };
 
@@ -41,23 +47,21 @@ const DEFAULT_OPTIONS: Required<StateConstructionParams> = {
  * state.update(draft => { draft.count++; });
  * ```
  */
-export class ReactiveState<S> extends ReactiveState_base<S> {
+export class ReactiveState<S> implements RawStateProvider<S> {
   //instance marker
 
   private _initial: S;
   private _state: S;
   private _listeners: ListenerContainer<S>[];
-  private _options: Required<StateConstructionParams>;
+  private _options: Required<ReactiveStateParams>;
 
   /**
    * Returns a {@link StateClient} facade that exposes only the read-only interface.
    * Safe to hand to consumers that should not be able to mutate state.
    */
-  readonly client: StateClient<S>;
+  readonly client: ReactiveStateClient<S>;
 
-  constructor(initial: S, options?: StateConstructionParams) {
-    super();
-
+  constructor(initial: S, options?: ReactiveStateParams) {
     this._initial = initial;
     this._state = initial;
     this._listeners = [];
@@ -105,7 +109,9 @@ export class ReactiveState<S> extends ReactiveState_base<S> {
         this._handleListenerException(error);
       }
     };
-    const container: ListenerContainer<S> = { listener: safeListener };
+    const container: ListenerContainer<S> = {
+      listener: safeListener,
+    };
     this._listeners.push(container);
 
     safeListener(this.get(), undefined);
@@ -115,7 +121,7 @@ export class ReactiveState<S> extends ReactiveState_base<S> {
     };
   }
 
-  select<U>(selector: StateSelectFn<S, U>): StateClient<U> {
+  select<U>(selector: StateSelectFn<S, U>): ReactiveStateClient<U> {
     return new StateSelector_imp(this, selector);
   }
 

@@ -1,20 +1,18 @@
 import type { UnsubscribeFn } from '../../core/types.js';
-import type { RemoteStateClient } from '../types/remoteStateClient.js';
-import type { StateListener, StateSelectFn } from '../types/types.js';
-import { RemoteStateClient_base } from './remoteStateClient_base.js';
+import type { ReactiveStateClient } from '../types/reactiveStateClient.js';
 
-export class RemoteStateSelector_imp<S, U> extends RemoteStateClient_base<U> {
-  private source: RemoteStateClient<S>;
+import type { StateListener, StateSelectFn } from '../types/types.js';
+
+export class StateSelector_imp<S, U> implements ReactiveStateClient<U> {
+  private source: ReactiveStateClient<S>;
   private fn: StateSelectFn<S, U>;
 
-  constructor(source: RemoteStateClient<S>, fn: StateSelectFn<S, U>) {
-    super();
-
+  constructor(source: ReactiveStateClient<S>, fn: StateSelectFn<S, U>) {
     this.source = source;
     this.fn = fn;
   }
 
-  async get<W = U>(select?: StateSelectFn<U, W>): Promise<W> {
+  get<W = U>(select?: StateSelectFn<U, W>): W {
     if (select) {
       // chain stored and provided select functions S=>U=>W
       const chain = (state: S) => select(this.fn(state));
@@ -23,6 +21,17 @@ export class RemoteStateSelector_imp<S, U> extends RemoteStateClient_base<U> {
       // cast
       const noChain = (state: S) => this.fn(state) as unknown as W;
       return this.source.get(noChain);
+    }
+  }
+  getInitialState<W = U>(select?: StateSelectFn<U, W>): W {
+    if (select) {
+      // chain stored and provided select functions S=>U=>W
+      const chain = (state: S) => select(this.fn(state));
+      return this.source.getInitialState(chain);
+    } else {
+      // cast
+      const noChain = (state: S) => this.fn(state) as unknown as W;
+      return this.source.getInitialState(noChain);
     }
   }
   subscribe(listener: StateListener<U>): UnsubscribeFn {
@@ -42,11 +51,11 @@ export class RemoteStateSelector_imp<S, U> extends RemoteStateClient_base<U> {
       prev = selected;
     });
   }
-  select<W>(selector: StateSelectFn<U, W>): RemoteStateClient<W> {
+  select<W>(selector: StateSelectFn<U, W>): ReactiveStateClient<W> {
     const fn: StateSelectFn<S, W> = (state) => {
       const sub = this.fn(state);
       return selector(sub);
     };
-    return new RemoteStateSelector_imp(this.source, fn);
+    return new StateSelector_imp(this.source, fn);
   }
 }

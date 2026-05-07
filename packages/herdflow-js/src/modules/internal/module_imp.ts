@@ -1,55 +1,59 @@
 import type { UnsubscribeFn } from '../../core/types.js';
 import { EventEmitter } from '../../events/eventEmitter.js';
 import type { EventClient } from '../../events/index.js';
+import type { ReactiveStateClient } from '../../reactiveState/index.js';
+import { ReactiveState } from '../../reactiveState/reactiveState.js';
 import { _SERVICE_LIFECYCLE_ } from '../../services/internal/types.js';
 import type { Service } from '../../services/service.js';
-import type { StateClient } from '../../state/index.js';
-import { ReactiveState } from '../../state/reactiveState.js';
 import { createDebugLogger } from '../../utils/debugLogger.js';
 import { AsyncMutex } from '../../utils/mutex.js';
+import type { Module } from '../types/module.js';
+import type { ModuleClient } from '../types/moduleClient.js';
 import type {
-  ModuleClient,
-  ModuleConstructionParams,
   ModuleDescriptor,
   ModuleEvents,
+  ModuleParams,
   ModuleServiceClients,
   ModuleState,
 } from '../types/types.js';
 import { ModuleClient_imp } from './moduleClient_imp.js';
-import { Module_base } from './module_base.js';
 
-export class Module_Imp<T_Module extends ModuleDescriptor> extends Module_base<T_Module> {
-  private params: Required<ModuleConstructionParams>;
-  private servicesImplementors: T_Module;
+export class Module_Imp<M extends ModuleDescriptor> implements Module<M> {
+  private params: Required<ModuleParams>;
+  private servicesImplementors: M;
 
   private longestServiceName = 0;
   private _lock = new AsyncMutex();
 
   private _debugLogger: Console;
 
+  readonly name: string;
+
   /**
    * Typed client facades for each service, keyed by the same names as the constructor input.
    * Use these to interact with services from outside the module.
    */
-  readonly services: ModuleServiceClients<T_Module>;
+  readonly services: ModuleServiceClients<M>;
 
-  readonly client: ModuleClient<T_Module>;
+  readonly client: ModuleClient<M>;
 
   private _state: ReactiveState<ModuleState>;
   private _events: EventEmitter<ModuleEvents>;
 
-  readonly state: StateClient<ModuleState>;
+  readonly state: ReactiveStateClient<ModuleState>;
   readonly events: EventClient<ModuleEvents>;
 
-  constructor(services: T_Module, params?: ModuleConstructionParams) {
-    super();
-
+  constructor(services: M, params?: ModuleParams) {
     this.params = {
       ...{
+        name: 'untitled',
         verbose: false,
       },
       ...params,
     };
+
+    this.name = params?.name ?? 'untitled';
+
     this._debugLogger = createDebugLogger(this.params.verbose);
 
     this.servicesImplementors = services;
@@ -70,7 +74,7 @@ export class Module_Imp<T_Module extends ModuleDescriptor> extends Module_base<T
     // services -> service clients
     const clientsEntries = Object.entries(services).map(([key, service]) => [key, service.client]);
 
-    this.services = Object.fromEntries(clientsEntries) as ModuleServiceClients<T_Module>;
+    this.services = Object.fromEntries(clientsEntries) as ModuleServiceClients<M>;
 
     //calc longestServiceName
     this.longestServiceName = Object.values(this.servicesImplementors).reduce(
@@ -90,13 +94,13 @@ export class Module_Imp<T_Module extends ModuleDescriptor> extends Module_base<T
           return;
         }
         this._debugLogger.log(`module initialization...`);
-        await this.doAll(async (s) => s[_SERVICE_LIFECYCLE_].init(), 'init');
+        await this.doAll(async (s) => s.onServiceInit(), 'init');
         await this.doAll((s) => {
           // set self as module in all services
           s[_SERVICE_LIFECYCLE_].setModule(this.client);
         }, undefined);
-        await this.doAll(async (s) => s[_SERVICE_LIFECYCLE_].start(), 'start');
-        await this.doAll(async (s) => s[_SERVICE_LIFECYCLE_].afterStart(), 'after-start');
+        await this.doAll(async (s) => s.onServiceStart(), 'start');
+        await this.doAll(async (s) => s.onServiceAfterStart(), 'after-start');
       })
       .then(() => {
         this._debugLogger.log(`module initialization complete`);
@@ -117,8 +121,8 @@ export class Module_Imp<T_Module extends ModuleDescriptor> extends Module_base<T
           return;
         }
         this._debugLogger.log(`module teardown...`);
-        await this.doAll(async (s) => s[_SERVICE_LIFECYCLE_].beforeStop(), 'before-stop');
-        await this.doAll(async (s) => s[_SERVICE_LIFECYCLE_].stop(), 'stop');
+        await this.doAll(async (s) => s.onServiceBeforeStop(), 'before-stop');
+        await this.doAll(async (s) => s.onServiceStop(), 'stop');
       })
       .then(() => {
         this._debugLogger.log(`module teardown complete`);
