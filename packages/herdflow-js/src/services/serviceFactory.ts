@@ -1,7 +1,7 @@
 import type { EMPTY } from '../core/types.js';
 import { Service_imp } from './internal/service_imp.js';
 import type { Service, ServiceParams } from './service.js';
-import type { ServiceDescriptor } from './types/types.js';
+import type { ServiceDescriptor } from './types.js';
 
 //-------------------------------------------------------
 

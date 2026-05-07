@@ -1,2 +1,3 @@
 export * from './eventEmitter.js';
-export * from './types/index.js';
+export * from './types.js';
+export * from './eventClient.js';

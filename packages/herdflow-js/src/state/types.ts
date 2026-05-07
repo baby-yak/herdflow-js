@@ -1,5 +1,5 @@
-import type { RawStateClient } from '../rawStateClient.js';
-import type { RawStateProvider } from '../rawStateProvider.js';
+import type { RawStateClient } from './rawStateClient.js';
+import type { RawStateProvider } from './rawStateProvider.js';
 
 export type InferState<T extends RawStateProvider<unknown> | RawStateClient<unknown>> =
   T extends RawStateProvider<infer S>

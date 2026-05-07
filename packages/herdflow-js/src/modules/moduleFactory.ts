@@ -1,6 +1,6 @@
 import { Module_Imp } from './internal/module_imp.js';
-import type { Module } from './types/module.js';
-import type { ModuleDescriptor, ModuleParams } from './types/types.js';
+import type { Module } from './module.js';
+import type { ModuleDescriptor, ModuleParams } from './types.js';
 
 //-------------------------------------------------------
 

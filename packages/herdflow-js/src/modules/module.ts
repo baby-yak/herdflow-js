@@ -1,6 +1,6 @@
-import type { EMPTY } from '../../core/types.js';
-import type { EventClient } from '../../events/index.js';
-import type { ReactiveStateClient } from '../../reactiveState/index.js';
+import type { EMPTY } from '../core/types.js';
+import type { EventClient } from '../events/index.js';
+import type { ReactiveStateClient } from '../reactiveState/index.js';
 import type { ModuleClient } from './moduleClient.js';
 import type { ModuleDescriptor, ModuleEvents, ModuleServiceClients, ModuleState } from './types.js';
 

@@ -1,20 +1,13 @@
+import type { ActionClient } from './actionClient.js';
 import { ActionsClient_imp } from './internal/actionsClient_imp.js';
 import { ActionExecutionMapping } from './internal/types.js';
 import { createInvoker } from './internal/utils.js';
-import type { ActionClient } from './types/actionClient.js';
-import type {
-  ActionHandler,
-  ActionMap,
-  ActionNames,
-  Invoker,
-} from './types/types.js';
+import type { ActionHandler, ActionMap, ActionNames, Invoker } from './types.js';
 
 //export type ActionsConstructionParams = {};
 export type ActionExecuterParams = object;
 
-export class ActionExecuter<
-  T_Map extends ActionMap = ActionMap,
-> implements ActionClient<T_Map> {
+export class ActionExecuter<T_Map extends ActionMap = ActionMap> implements ActionClient<T_Map> {
   /**
    * invoke actions with this
    */
@@ -63,10 +56,7 @@ export class ActionExecuter<
 
     //handler function for a specific method
     const action = action_or_handler as string | number;
-    return this._setHandler_fn(
-      action,
-      handlerFn as ActionHandler<T_Map, typeof action>,
-    );
+    return this._setHandler_fn(action, handlerFn as ActionHandler<T_Map, typeof action>);
   }
 
   //-------------------------------------------------------

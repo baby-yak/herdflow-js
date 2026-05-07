@@ -1,4 +1,4 @@
-import type { ActionHandler, ActionMap, Invoker } from '../types/types.js';
+import type { ActionHandler, ActionMap, Invoker } from '../types.js';
 import type { ActionExecutionMapping } from './types.js';
 
 export function createInvoker<T_Map extends ActionMap>(

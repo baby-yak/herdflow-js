@@ -5,8 +5,8 @@ import type { RawStateProvider } from '../state/index.js';
 import { MARKER_SERVICE } from './internal/markers.js';
 import { ServiceClient_imp } from './internal/serviceClient_imp.js';
 import { _SERVICE_LIFECYCLE_ } from './internal/types.js';
-import type { ServiceClient } from './types/serviceClient.js';
-import type { DescActions, DescEvents, DescState, ServiceDescriptor } from './types/types.js';
+import type { ServiceClient } from './serviceClient.js';
+import type { DescActions, DescEvents, DescState, ServiceDescriptor } from './types.js';
 
 /** Advanced construction options passed to the underlying state, events, and actions subsystems. */
 export type RawServiceParams = {

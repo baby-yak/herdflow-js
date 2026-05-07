@@ -1,6 +1,6 @@
-import type { ActionMap } from '../../actions/index.js';
-import type { EMPTY } from '../../core/types.js';
-import type { EventMap } from '../../events/index.js';
+import type { ActionMap } from '../actions/index.js';
+import type { EMPTY } from '../core/types.js';
+import type { EventMap } from '../events/index.js';
 
 /**
  * Describes the shape of a service — its state type, event map, and action map.

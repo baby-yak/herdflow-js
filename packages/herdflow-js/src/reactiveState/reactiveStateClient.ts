@@ -1,5 +1,5 @@
-import type { UnsubscribeFn } from '../../core/types.js';
-import type { RawStateClient } from '../../state/rawStateClient.js';
+import type { UnsubscribeFn } from '../core/types.js';
+import type { RawStateClient } from '../state/rawStateClient.js';
 import type { StateListener, StateSelectFn } from './types.js';
 
 /** Read-only view of a reactive state container. */
