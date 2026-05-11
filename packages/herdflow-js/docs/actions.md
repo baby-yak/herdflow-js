@@ -67,7 +67,7 @@ actions.invoke.greet('Bob'); // from GameService
 actions.invoke.add(1, 2); // 103 — from override
 ```
 
-Priority order: **individual handler → execution target → throw**.
+Priority order: **individual handler → execution target → catch-all → throw**.
 
 ## Read-only client
 
@@ -122,9 +122,58 @@ actions.setHandler(new UserService());
 const user = await actions.invoke.fetchUser(1); // { id: 1, name: 'Alice' }
 ```
 
+## Catch-all handler
+
+Register a `'*'` handler to intercept any action that isn't covered by a specific handler or execution target. The catch-all receives the action name as its first argument, followed by the original call arguments.
+
+```ts
+type AppActions = {
+  greet(name: string): void;
+  add(a: number, b: number): number;
+  fetchUser?(id: number): Promise<{ id: number; name: string }>;
+};
+
+const actions = new ActionExecuter<AppActions>();
+
+actions.setHandler('*', (action, ...args) => {
+  console.log(`[unhandled] ${action}`, args);
+});
+
+actions.invoke.greet('Alice'); // [unhandled] greet ['Alice']
+actions.invoke.add(1, 2);     // [unhandled] add [1, 2]
+```
+
+Return a value from the catch-all and it propagates back to the caller:
+
+```ts
+actions.setHandler('*', (action, ...args) => `${action}:${args.join(',')}`);
+
+const result = actions.invoke.add(1, 2); // 'add:1,2'
+```
+
+Works with optional actions too — the action name is still passed correctly:
+
+```ts
+actions.invoke.fetchUser?.(42); // [unhandled] fetchUser [42]
+```
+
+Specific handlers and execution target always take priority over catch-all:
+
+```ts
+actions.setHandler('add', (a, b) => a + b);    // specific
+actions.setHandler(new GameService());          // execution target
+actions.setHandler('*', () => 'fallback');      // lowest priority
+
+actions.invoke.add(1, 2);    // from specific handler
+actions.invoke.greet('Bob'); // from GameService
+actions.invoke.noop();       // 'fallback' — not in specific or target
+```
+
+Full priority order: **individual handler → execution target → catch-all → throw**.
+
 ## Missing handler
 
-If an action is invoked with no handler registered, it throws at call time:
+If an action is invoked with no handler registered and no catch-all is set, it throws at call time:
 
 ```ts
 const actions = new ActionExecuter<AppActions>();

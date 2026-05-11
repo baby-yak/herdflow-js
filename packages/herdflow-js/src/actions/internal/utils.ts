@@ -28,6 +28,13 @@ export function createInvoker<T_Map extends ActionMap>(
           return handler.bind(executer.executionTarget);
         }
 
+        //fall back to default handler if exists:
+        if (executer.catchAllHandler != null) {
+          const fn = executer.catchAllHandler;
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument
+          return (...args: any[]) => fn(prop, ...args);
+        }
+
         //oh my
         throw new Error(`Action [${prop}] was not implemented`);
       },
