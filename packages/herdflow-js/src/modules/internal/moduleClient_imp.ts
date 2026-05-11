@@ -1,13 +1,13 @@
 import type { EventClient } from '../../events/index.js';
 import type { ReactiveStateClient } from '../../reactiveState/index.js';
-import type { Module } from '../types/module.js';
-import type { ModuleClient } from '../types/moduleClient.js';
+import type { Module } from '../module.js';
+import type { ModuleClient } from '../moduleClient.js';
 import type {
   ModuleDescriptor,
   ModuleEvents,
   ModuleServiceClients,
   ModuleState,
-} from '../types/types.js';
+} from '../types.js';
 
 export class ModuleClient_imp<M extends ModuleDescriptor> implements ModuleClient<M> {
   readonly name: string;

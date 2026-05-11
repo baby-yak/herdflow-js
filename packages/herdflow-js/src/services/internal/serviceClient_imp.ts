@@ -2,8 +2,8 @@ import type { ActionClient, Invoker } from '../../actions/index.js';
 import type { EventClient } from '../../events/index.js';
 import type { RawStateProvider } from '../../state/index.js';
 import type { RawService } from '../rawService.js';
-import type { ServiceClient } from '../types/serviceClient.js';
-import type { DescActions, DescEvents, DescState, ServiceDescriptor } from '../types/types.js';
+import type { ServiceClient } from '../serviceClient.js';
+import type { DescActions, DescEvents, DescState, ServiceDescriptor } from '../types.js';
 import { MARKER_SERVICE_CLIENT } from './markers.js';
 
 export class ServiceClient_imp<

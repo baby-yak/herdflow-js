@@ -1,4 +1,4 @@
-import type { ActionHandler, ActionMap, Invoker } from '../types/types.js';
+import type { ActionHandler, ActionMap, Invoker } from '../types.js';
 import type { ActionExecutionMapping } from './types.js';
 
 export function createInvoker<T_Map extends ActionMap>(
@@ -26,6 +26,13 @@ export function createInvoker<T_Map extends ActionMap>(
         handler = executer.executionTarget?.[prop] as ActionHandler<T_Map, any> | undefined;
         if (handler) {
           return handler.bind(executer.executionTarget);
+        }
+
+        //fall back to default handler if exists:
+        if (executer.catchAllHandler != null) {
+          const fn = executer.catchAllHandler;
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument
+          return (...args: any[]) => fn(prop, ...args);
         }
 
         //oh my

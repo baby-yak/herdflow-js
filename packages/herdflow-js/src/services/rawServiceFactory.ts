@@ -2,7 +2,7 @@ import type { InferState } from '../state/index.js';
 import type { RawStateProvider } from '../state/rawStateProvider.js';
 import { RawService_imp } from './internal/rawService_imp.js';
 import type { RawService, RawServiceParams } from './rawService.js';
-import type { ServiceDescriptor } from './types/types.js';
+import type { ServiceDescriptor } from './types.js';
 
 //-------------------------------------------------------
 

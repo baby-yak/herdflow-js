@@ -1,5 +1,5 @@
 import { Service } from '../service.js';
-import type { ServiceDescriptor } from '../types/types.js';
+import type { ServiceDescriptor } from '../types.js';
 
 /**
  * just a concrete implementation

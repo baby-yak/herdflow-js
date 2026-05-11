@@ -1,4 +1,4 @@
-import type { EventMap, EventNames } from '../types/index.js';
+import type { EventMap, EventNames } from '../types.js';
 
 export type GroupToken = {
   name: string;

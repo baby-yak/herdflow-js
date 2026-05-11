@@ -1,3 +1,4 @@
+import type { EventClient } from './eventClient.js';
 import { EventClient_imp } from './internal/eventClient_imp.js';
 import {
   type EventNames_Pure,
@@ -7,14 +8,13 @@ import {
   type GroupToken,
   isReservedEventName,
 } from './internal/types.js';
-import type { EventClient } from './types/eventClient.js';
 import type {
   EventListener,
   EventListenersErrorHandlingType,
   EventMap,
   EventNames,
   EventParams,
-} from './types/index.js';
+} from './types.js';
 
 export type EventEmitterParams = {
   /** per event. \
@@ -61,10 +61,7 @@ export class EventEmitter<T_EventMap extends EventMap = EventMap>
   private static _GLOBAL_MAX_LISTENERS = 10;
 
   private _listeners: Map<string, Array<Listener<T_EventMap>>>;
-  private _defaultHandlers: Map<
-    string,
-    EventListener<T_EventMap, EventNames<T_EventMap>>
-  >;
+  private _defaultHandlers: Map<string, EventListener<T_EventMap, EventNames<T_EventMap>>>;
   private _options: Required<EventEmitterParams>;
 
   /**
@@ -109,10 +106,8 @@ export class EventEmitter<T_EventMap extends EventMap = EventMap>
       },
       ...params,
     };
-    this._options.maxListeners =
-      params?.maxListeners ?? EventEmitter.defaultMaxListeners;
-    this._options.listenersErrorHandling =
-      params?.listenersErrorHandling ?? 'warn';
+    this._options.maxListeners = params?.maxListeners ?? EventEmitter.defaultMaxListeners;
+    this._options.listenersErrorHandling = params?.listenersErrorHandling ?? 'warn';
   }
   //-------------------------------------------------------
 
@@ -236,21 +231,13 @@ export class EventEmitter<T_EventMap extends EventMap = EventMap>
     event: T_Event,
   ): EventListener<T_EventMap, T_Event>[] {
     const listeners = this._listeners.get(event) || [];
-    return listeners.map((x) => x.listener) as EventListener<
-      T_EventMap,
-      T_Event
-    >[];
+    return listeners.map((x) => x.listener) as EventListener<T_EventMap, T_Event>[];
   }
 
   /** Returns the original listener functions, without any once-wrapper logic. */
-  rawListeners<T_Event extends EventNames<T_EventMap>>(
-    event: T_Event,
-  ) {
+  rawListeners<T_Event extends EventNames<T_EventMap>>(event: T_Event) {
     const listeners = this._listeners.get(event) || [];
-    return listeners.map((x) => x.listener) as EventListener<
-      T_EventMap,
-      T_Event
-    >[];
+    return listeners.map((x) => x.listener) as EventListener<T_EventMap, T_Event>[];
   }
 
   // for internal library use
@@ -260,9 +247,7 @@ export class EventEmitter<T_EventMap extends EventMap = EventMap>
   ): void {
     if (event != null) {
       const existing = this._listeners.get(event) ?? [];
-      const fromSource = existing.filter(
-        (x) => x.groupToken === groupToken,
-      );
+      const fromSource = existing.filter((x) => x.groupToken === groupToken);
       for (const container of fromSource) {
         const listener = container.listener;
 
@@ -284,16 +269,11 @@ export class EventEmitter<T_EventMap extends EventMap = EventMap>
   //-- utilities
   //-------------------------------------------------------
 
-  private _handleListenerException(
-    event: EventNames<T_EventMap>,
-    err: unknown,
-  ) {
+  private _handleListenerException(event: EventNames<T_EventMap>, err: unknown) {
     let shouldThrow = false;
 
     try {
-      if (
-        typeof this._options.listenersErrorHandling === 'function'
-      ) {
+      if (typeof this._options.listenersErrorHandling === 'function') {
         this._options.listenersErrorHandling(event, err);
       } else if (this._options.listenersErrorHandling === 'throw') {
         shouldThrow = true;
@@ -426,9 +406,7 @@ export class EventEmitter<T_EventMap extends EventMap = EventMap>
 
   //-------------------------------------------------------
   // implement abstract
-  protected override _addListener<
-    T_Event extends EventNames<T_EventMap>,
-  >(params: {
+  protected override _addListener<T_Event extends EventNames<T_EventMap>>(params: {
     groupToken: GroupToken;
     event: T_Event;
     listener: EventListener<T_EventMap, T_Event>;
@@ -436,14 +414,7 @@ export class EventEmitter<T_EventMap extends EventMap = EventMap>
     once?: boolean;
     prepend?: boolean;
   }): this {
-    const {
-      event,
-      listener,
-      postRemoved,
-      groupToken,
-      once = false,
-      prepend = false,
-    } = params;
+    const { event, listener, postRemoved, groupToken, once = false, prepend = false } = params;
 
     //fire (internal event)
     if (!isReservedEventName(event)) {
@@ -456,10 +427,7 @@ export class EventEmitter<T_EventMap extends EventMap = EventMap>
     //add
     const container: Listener<T_EventMap> = {
       groupToken: groupToken,
-      listener: listener as EventListener<
-        T_EventMap,
-        EventNames<T_EventMap>
-      >,
+      listener: listener as EventListener<T_EventMap, EventNames<T_EventMap>>,
       postRemoved: postRemoved,
       once: once,
     };
@@ -471,13 +439,8 @@ export class EventEmitter<T_EventMap extends EventMap = EventMap>
     }
     this._listeners.set(event, listeners);
 
-    const ignoreLimit =
-      this._options.maxListeners === 0 ||
-      this._options.maxListeners === Infinity;
-    if (
-      !ignoreLimit &&
-      listeners.length > this._options.maxListeners
-    ) {
+    const ignoreLimit = this._options.maxListeners === 0 || this._options.maxListeners === Infinity;
+    if (!ignoreLimit && listeners.length > this._options.maxListeners) {
       console.warn(
         `MaxListenersExceededWarning: Possible EventEmitter memory leak detected.\n${listeners.length} ${event} listeners added to [EventEmitter]. Use setMaxListeners() to increase limit`,
       );
@@ -486,9 +449,7 @@ export class EventEmitter<T_EventMap extends EventMap = EventMap>
   }
   //-------------------------------------------------------
   // implement abstract
-  protected override _removeListener<
-    T_Event extends EventNames<T_EventMap>,
-  >(params: {
+  protected override _removeListener<T_Event extends EventNames<T_EventMap>>(params: {
     event: T_Event;
     listener: EventListener<T_EventMap, T_Event>;
   }): this {
